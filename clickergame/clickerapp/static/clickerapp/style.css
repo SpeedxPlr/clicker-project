@@ -1,0 +1,40 @@
+        body {
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 200;
+            font-style: normal;
+            margin: 0;
+        }
+        h1 {
+            font-family: "Roboto Slab", serif;
+            font-size: 64px;
+        }
+        .container {
+            padding: 20px;
+        }
+
+        #click-button {
+            width:160px;
+            height:160px;
+            border-radius:999px;
+            border:0;
+            background:linear-gradient(180deg,#fff,#f1f1f1);
+            box-shadow:0 8px 18px rgba(15,15,15,0.08), inset 0 -6px 14px rgba(0,0,0,0.03);
+            font-size:22px;
+            font-weight:700;
+            cursor:pointer;
+            transition:transform .08s ease, box-shadow .08s ease;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            user-select:none;
+            font-family: "Roboto Slab", serif;
+            
+        }
+        #click-button:active{
+            transform:translateY(2px) scale(.995); box-shadow:0 4px 10px rgba(15,15,15,0.06)
+        }
+        #score-text {
+            font-size: 48px;
+
+        }
