@@ -1,7 +1,15 @@
 <h2>Login</h2>
 
 <form method="post">
+    {% if form.errors %}
+    <div class="errors">
+        {{ form.errors }}
+    </div>
+    {% endif %}
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Login</button>
+    <p>Don't have an account?</p>
+
+    <a class="btn" href="{% url 'register' %}"> Create Account </a>
 </form>

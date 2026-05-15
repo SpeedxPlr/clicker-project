@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import Profile
+from django.contrib.auth import login
+from .forms import RegisterForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -38,6 +40,28 @@ def signup(request):
 
 
 
+
+
+def register_view(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+
+            # Optional: automatically log user in
+            login(request, user)
+
+            return redirect("home")
+        else:
+            print(form.errors)  # important for debugging
+    else:
+        form = RegisterForm()
+
+    return render(request, "registration/register.html", {
+        "form": form
+    })
+
+
 from django.http import JsonResponse
 
 score = 0  # temporary (resets when server restarts)
@@ -50,10 +74,14 @@ def add_point(request):
 
     return JsonResponse({'score': profile.score})
 
+def user_score(user):
+    profile, created = Profile.objects.get_or_create(user=user)
+    return profile.score
+
 def get_score(request):
     if not request.user.is_authenticated:
         return JsonResponse({"score": 0})
 
-    profile, created = Profile.objects.get_or_create(user=request.user)
-
-    return JsonResponse({"score": profile.score})
+    return JsonResponse({
+        "score": user_score(request.user)
+    })

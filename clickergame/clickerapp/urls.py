@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.contrib import admin
 from . import views
-from .views import home, about
+from .views import home, about, register_view
 
 
 urlpatterns = [
@@ -12,4 +12,5 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('admin/', admin.site.urls),
     path("get-score/", views.get_score, name="get_score"),
+    path("accounts/register/", register_view, name="register")
 ]
