@@ -61,27 +61,11 @@ def register_view(request):
         "form": form
     })
 
+from django.contrib.auth import logout
 
-from django.http import JsonResponse
+def logout_view(request):
+    logout(request)
+    return redirect("login")
 
-score = 0  # temporary (resets when server restarts)
 
 
-def add_point(request):
-    profile = Profile.objects.get(user=request.user)
-    profile.score += 1
-    profile.save()
-
-    return JsonResponse({'score': profile.score})
-
-def user_score(user):
-    profile, created = Profile.objects.get_or_create(user=user)
-    return profile.score
-
-def get_score(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({"score": 0})
-
-    return JsonResponse({
-        "score": user_score(request.user)
-    })
