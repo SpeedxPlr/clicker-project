@@ -69,17 +69,29 @@ def logout_view(request):
 
 from .models import Profile
 from django.http import JsonResponse
+from .services import calculate_player_stats
+from django.shortcuts import get_object_or_404
 
-
-score = 0  # temporary (resets when server restarts)
-
+from .models import (
+    Profile,
+    Upgrade,
+    ProfileUpgrade,
+)
 
 def add_point(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
-    profile.score +=  profile.points_per_click
+
+    stats = calculate_player_stats(profile)
+
+    reward = ((stats["click_power"]+stats["additive_power"]) * stats["additive_multiplier"]) *  stats["global_multiplier"]
+
+    profile.score += int(reward)
     profile.save()
 
-    return JsonResponse({'score': profile.score})
+    return JsonResponse({
+        'score': profile.score
+    })
+
 
 def user_score(user):
     profile, created = Profile.objects.get_or_create(user=user)
@@ -93,26 +105,57 @@ def get_score(request):
         "score": user_score(request.user)
     })
 
+def buy_upgrade(request, upgrade_id):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"error": "Login required"},
+            status=401
+        )
 
-def upgrade_click(request):
-    profile = Profile.objects.get(user=request.user)
+    profile, _ = Profile.objects.get_or_create(
+        user=request.user
+    )
 
-    cost = profile.points_per_click * 10
+    upgrade = get_object_or_404(
+        Upgrade,
+        id=upgrade_id
+    )
 
-    if profile.score >= cost:
-        profile.score -= cost
-        profile.points_per_click += 1
-        profile.save()
+    profile_upgrade, _ = (
+        ProfileUpgrade.objects.get_or_create(
+            profile=profile,
+            upgrade=upgrade
+        )
+    )
 
-        return JsonResponse({
-            "success": True,
-            "score": profile.score,
-            "points_per_click": profile.points_per_click,
-            "cost": cost
-        })
+    if (
+        not upgrade.is_repeatable
+        and profile_upgrade.level > 0
+    ):
+        return JsonResponse(
+            {"error": "Already purchased"},
+            status=400
+        )
+
+    cost = upgrade.get_cost(
+        profile_upgrade.level
+    )
+
+    if profile.score < cost:
+        return JsonResponse(
+            {"error": "Not enough points"},
+            status=400
+        )
+
+    profile.score -= cost
+    profile_upgrade.level += 1
+
+    profile.save()
+    profile_upgrade.save()
 
     return JsonResponse({
-        "success": False,
-        "error": "Not enough points",
-        "cost": cost
+        "success": True,
+        "score": profile.score,
+        "level": profile_upgrade.level,
+        "cost_paid": cost,
     })

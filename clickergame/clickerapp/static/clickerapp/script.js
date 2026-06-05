@@ -19,5 +19,23 @@ function updateScore() {
         });
 }
 
+async function buyUpgrade(upgradeId) {
+    const response = await fetch(
+        `/buy-upgrade/${upgradeId}/`
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+
+    if (data.success) {
+        document.getElementById("score").textContent =
+            data.score;
+    } else {
+        alert(data.error);
+    }
+}
+
+
 // update every second
 setInterval(updateScore, 16);
