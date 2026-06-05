@@ -2,7 +2,7 @@ from django.urls import path, include
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from . import views
-from .views import home, about, register_view
+from .views import  about, register_view
 from django.views.generic.base import RedirectView
 
 
