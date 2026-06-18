@@ -17,6 +17,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("get-score/", views.get_score, name="get_score"),
     path("buy-upgrade/<int:upgrade_id>/",views.buy_upgrade,name="buy_upgrade"),
-    path("accounts/register/", register_view, name="register")
-
+    path("accounts/register/", register_view, name="register"),
+    path('leaderboard/',views.leaderboard,name='leaderboard'),
 ]

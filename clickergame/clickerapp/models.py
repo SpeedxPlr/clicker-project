@@ -30,13 +30,32 @@ class Upgrade(models.Model):
         (GLOBAL_MULTIPLIER, "Global Multiplier"),
     ]
 
+    EXPONENTIAL = "exp"
+    LINEAR = "linear"
+    FIXED = "fixed"
+
+    COST_TYPES = [
+        (EXPONENTIAL, "Exponential"),
+        (LINEAR, "Linear"),
+        (FIXED, "Fixed"),
+    ]
+
+
     name = models.CharField(max_length=100)
     description = models.TextField()
-    base_cost = models.IntegerField()
+
 
     base_cost = models.IntegerField()
+
+    cost_type = models.CharField(max_length=20,choices=COST_TYPES,default=EXPONENTIAL)
 
     cost_multiplier = models.FloatField(default=1.15)
+
+    cost_increase = models.IntegerField(default=10)
+
+    
+
+
 
     effect_type = models.CharField(
         max_length=30,
@@ -46,18 +65,33 @@ class Upgrade(models.Model):
     effect_value = models.FloatField()
 
     is_repeatable = models.BooleanField(default=True)
-
-    cost_multiplier = models.FloatField(default=1.15)
     
     def get_cost(self, current_level):
         if not self.is_repeatable:
             return self.base_cost
 
-        return int(
-            self.base_cost *
-            (self.cost_multiplier ** current_level)
-    )
 
+        if self.cost_type == self.FIXED:
+            return self.base_cost
+
+
+        elif self.cost_type == self.LINEAR:
+            return (
+                self.base_cost +
+                current_level*self.cost_increase
+            )
+
+
+        elif self.cost_type == self.EXPONENTIAL:
+
+            return int(
+
+                self.base_cost *
+
+                (self.cost_multiplier ** current_level)
+            )
+        
+        return self.base_cost
 
 
 class ProfileUpgrade(models.Model):

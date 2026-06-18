@@ -11,6 +11,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+document.querySelectorAll(".buy-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        buyUpgrade(button.dataset.id);
+    });
+});
+
 function updateScore() {
     fetch("/get-score/")
         .then(response => response.json())
@@ -20,9 +26,12 @@ function updateScore() {
 }
 
 async function buyUpgrade(upgradeId) {
-    const response = await fetch(
-        `/buy-upgrade/${upgradeId}/`
-    );
+    const response = await fetch(`/buy-upgrade/${id}/`);
+
+    if (!response.ok) {
+        console.error("Request failed:", response.status);
+        return;
+    }
 
     const data = await response.json();
 

@@ -36,3 +36,22 @@ def calculate_player_stats(profile):
             stats["global_multiplier"] *= (1+value)
 
     return stats
+
+def get_upgrade_data(profile):
+    upgrades = Upgrade.objects.all()
+
+    upgrade_data = []
+
+    for upgrade in upgrades:
+        pu, _ = ProfileUpgrade.objects.get_or_create(
+            profile=profile,
+            upgrade=upgrade
+        )
+
+        upgrade_data.append({
+            'upgrade': upgrade,
+            'level': pu.level,
+            'cost': upgrade.get_cost(pu.level)
+        })
+
+    return upgrade_data

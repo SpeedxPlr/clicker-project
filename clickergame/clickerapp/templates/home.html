@@ -7,12 +7,28 @@ Home
 {% endblock %}
 
 {% block content %}
-<script src="{% static 'script.js' %}"></script>
 <h1>Home Page</h1>
-<p>Welcome to the homepage.</p>
+{% if user.is_authenticated %}
+<h2>Rank: {{ rank }}</h2>
+{% endif %}
 <span id="score-text"><p>Score: <span id="score">0</span></p></span>
 <button id="click-button">Click</button>
-<button onclick="buyUpgrade(1)">
-    Buy Stronger Finger
-</button>
+{% for item in upgrades %}
+<div class="upgrade">
+
+    <h3>{{ item.upgrade.name }}</h3>
+
+    <p>{{ item.upgrade.description }}</p>
+
+    <p>Level: {{ item.level }}</p>
+
+    <p>Cost: {{ item.cost }}</p>
+
+    <button class="buy-btn"
+        data-id="{{ item.upgrade.id }}">
+        Buy
+    </button>
+
+</div>
+{% endfor %}
 {% endblock %}
