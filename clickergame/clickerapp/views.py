@@ -189,11 +189,12 @@ def buy_upgrade(request, upgrade_id):
     profile.save()
     profile_upgrade.save()
 
+
     return JsonResponse({
         "success": True,
         "score": profile.score,
         "level": profile_upgrade.level,
-        "cost_paid": cost,
+        "new_cost": upgrade.get_cost(profile_upgrade.level)
     })
 
 
