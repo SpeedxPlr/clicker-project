@@ -4,6 +4,8 @@
             font-weight: 200;
             font-style: normal;
             margin: 0;
+            background:linear-gradient(45deg,#181818,#4a4a55);
+            color: aliceblue;
         }
         h1 {
             font-family: "Roboto Slab", serif;
@@ -13,26 +15,31 @@
             padding: 20px;
         }
 
-        #click-button {
-            width:160px;
-            height:160px;
-            border-radius:999px;
-            border:0;
-            background:linear-gradient(180deg,#fff,#f1f1f1);
-            box-shadow:0 8px 18px rgba(15,15,15,0.08), inset 0 -6px 14px rgba(0,0,0,0.03);
-            font-size:22px;
-            font-weight:700;
-            cursor:pointer;
-            transition:transform .08s ease, box-shadow .08s ease;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            user-select:none;
-            font-family: "Roboto Slab", serif;
-            
+       #click-button {
+            width: 80%;
+            height: 250px;
+            align-self: center;
+            border-radius: 16px;
+
+            font-size: 40px;
+
+            border: none;
+
+            background: #4da6ff;
+
+            color: white;
+
+            cursor: pointer;
+
+            transition: transform .1s;
         }
-        #click-button:active{
-            transform:translateY(2px) scale(.995); box-shadow:0 4px 10px rgba(15,15,15,0.06)
+
+        #click-button:hover {
+            transform: scale(1.05);
+        }
+
+        #click-button:active {
+            transform: scale(.95);
         }
         #score-text {
             font-size: 48px;
@@ -86,12 +93,41 @@
 
         }
 
-        .upgrade {
-            background: #222;
-            padding: 15px;
-            margin: 10px;
+        .upgrade{
 
-            border-radius: 10px;
+        padding:15px;
 
-            color:white;
+        margin:10px;
+
+        background:#252525;
+
+        border-radius:10px;
+
+        box-shadow:0 0 10px black;
+
+        transition:.2s;
+        }
+
+        .upgrade:hover{
+
+        transform:translateY(-3px);
+
+        }
+
+        .floating {
+            position:absolute;
+
+            animation: rise 1s forwards;
+        }
+
+        @keyframes rise{
+            from{
+                opacity:1;
+                transform:translateY(0);
+            }
+
+            to{
+                opacity:0;
+                transform:translateY(-100px);
+            }
         }

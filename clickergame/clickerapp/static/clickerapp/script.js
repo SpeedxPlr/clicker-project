@@ -30,19 +30,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const buttons = document.querySelectorAll(".buy-btn");
 
-    buttons.forEach(button => {
+    document.querySelectorAll(".buy-btn").forEach(button => {
 
     button.addEventListener("click", () => {
 
-        console.log("Clicked");
+        const card = button.closest(".upgrade");
 
-        buyUpgrade(button.dataset.id);
+        buyUpgrade(card.dataset.id, button);
 
     });
 
 });
 
 });
+
 
 function updateScore() {
     fetch("/get-score/")
@@ -52,12 +53,19 @@ function updateScore() {
         });
 }
 
-async function buyUpgrade(upgradeId) {
+async function buyUpgrade(upgradeId, button) {
+
     console.log("Buying", upgradeId);
-    const response = await fetch(`/buy-upgrade/${upgradeId}/`);
+
+    const response = await fetch(
+        `/buy-upgrade/${upgradeId}/`
+    );
 
     if (!response.ok) {
-        console.error("Request failed:", response.status);
+        console.error(
+            "Request failed:",
+            response.status
+        );
         return;
     }
 
@@ -66,16 +74,25 @@ async function buyUpgrade(upgradeId) {
     console.log(data);
 
     if (data.success) {
-        document.getElementById("score").textContent =
-            data.score;
-        button.closest(".upgrade")
-    .querySelector(".cost")
-    .textContent = data.new_cost;
-    } else {
+
+        document.getElementById("score").textContent = data.score;
+        
+        document.getElementById("ppc").textContent = data.ppc;
+
+        const card = button.closest(".upgrade");
+
+
+        card.querySelector(".level").textContent = data.level;
+
+
+        card.querySelector(".cost").textContent = data.new_cost;
+    }
+
+    else {
         alert(data.error);
     }
-    
+
 }
 
 // update every second
-setInterval(updateScore, 16);
+setInterval(updateScore, 200);

@@ -33,7 +33,7 @@ def calculate_player_stats(profile):
 
 
         elif pu.upgrade.effect_type == Upgrade.GLOBAL_MULTIPLIER:
-            stats["global_multiplier"] *= (1+value)
+            stats["global_multiplier"] *= (1 + pu.upgrade.effect_value) ** pu.level
 
     return stats
 
@@ -55,3 +55,15 @@ def get_upgrade_data(profile):
         })
 
     return upgrade_data
+
+def calculate_ppc(profile):
+    stats = calculate_player_stats(profile)
+
+    return int(
+        (
+            stats["click_power"]
+            + stats["additive_power"]
+        )
+        * stats["additive_multiplier"]
+        * stats["global_multiplier"]
+    )

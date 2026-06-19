@@ -7,7 +7,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .services import get_upgrade_data
+from .services import get_upgrade_data, calculate_ppc
 
 
 @receiver(post_save, sender=User)
@@ -26,7 +26,7 @@ def home(request):
         )
 
         score = profile.score
-
+        ppc = calculate_ppc(profile)
         rank = (
             Profile.objects
             .filter(score__gt=profile.score)
@@ -103,9 +103,9 @@ def add_point(request):
 
     stats = calculate_player_stats(profile)
 
-    reward = ((stats["click_power"]+stats["additive_power"]) * stats["additive_multiplier"]) *  stats["global_multiplier"]
+    reward = calculate_ppc(profile)
 
-    profile.score += int(reward)
+    profile.score += reward
     profile.save()
 
     return JsonResponse({
@@ -142,6 +142,7 @@ def buy_upgrade(request, upgrade_id):
             status=401
         )
     
+
     print("Upgrade requested:", upgrade_id)
 
     upgrades = Upgrade.objects.all()
@@ -163,6 +164,9 @@ def buy_upgrade(request, upgrade_id):
             upgrade=upgrade
         )
     )
+
+
+
 
     if (
         not upgrade.is_repeatable
@@ -186,6 +190,11 @@ def buy_upgrade(request, upgrade_id):
     profile.score -= cost
     profile_upgrade.level += 1
 
+    stats = calculate_player_stats(profile)
+
+    ppc = calculate_ppc(profile)
+
+
     profile.save()
     profile_upgrade.save()
 
@@ -194,9 +203,9 @@ def buy_upgrade(request, upgrade_id):
         "success": True,
         "score": profile.score,
         "level": profile_upgrade.level,
-        "new_cost": upgrade.get_cost(profile_upgrade.level)
+        "new_cost": upgrade.get_cost(profile_upgrade.level),
+        "ppc": calculate_ppc(profile)
     })
-
 
 from .models import Profile
 

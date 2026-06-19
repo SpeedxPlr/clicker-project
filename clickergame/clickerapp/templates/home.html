@@ -12,20 +12,38 @@ Home
 <h2>Rank: {{ rank }}</h2>
 {% endif %}
 <span id="score-text"><p>Score: <span id="score">0</span></p></span>
+
+<h2>
+    Points per Click:
+    <span id="ppc">
+        {{ points_per_click }}
+    </span>
+</h2>
+
 <button id="click-button">Click</button>
+
 {% for item in upgrades %}
-<div class="upgrade">
+<div class="upgrade" data-id="{{item.upgrade.id}}">
 
     <h3>{{ item.upgrade.name }}</h3>
 
     <p>{{ item.upgrade.description }}</p>
 
-    <p>Level: {{ item.level }}</p>
+    <h2>
+    Level:
+    <span class="level">
+        {{ item.level }}
+    </span>
+    </h2>
 
-    <p>Cost: {{ item.cost }}</p>
+    <p>
+    Cost:
+    <span class="cost">
+        {{ item.cost }}
+    </span>
+    </p>
 
-    <button class="buy-btn"
-        data-id="{{ item.upgrade.id }}">
+    <button class="buy-btn" >
         Buy
     </button>
 
