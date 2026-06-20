@@ -108,9 +108,7 @@ def add_point(request):
     profile.score += reward
     profile.save()
 
-    return JsonResponse({
-        'score': profile.score
-    })
+    return JsonResponse({'score': profile.score,'reward': reward})
 
 
 def user_score(user):

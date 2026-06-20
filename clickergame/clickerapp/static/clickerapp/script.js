@@ -18,13 +18,19 @@ if (button) {
         fetch("/add/")
             .then(res => res.json())
             .then(data => {
-                document.getElementById("score").innerText = data.score;
-            });
 
+                document.getElementById("score").innerText =
+                    data.score;
+
+
+                createFloatingText("+" + data.reward);
+
+            });
     });
 
 }
 });
+
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -43,6 +49,36 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 });
+
+
+function createFloatingText(text) {
+
+    const area = document.getElementById("click-area");
+
+    const element = document.createElement("div");
+
+    element.className = "floating-text";
+
+    element.textContent = text;
+
+
+    element.style.left =
+    (Math.random()*100) + "%";
+
+
+    element.style.top =
+        "50px";
+
+
+    area.appendChild(element);
+
+
+    setTimeout(() => {
+        element.remove();
+    }, 1000);
+
+}
+
 
 
 function updateScore() {

@@ -114,20 +114,35 @@
 
         }
 
-        .floating {
-            position:absolute;
+        #click-area {
+            position: relative;
 
-            animation: rise 1s forwards;
         }
 
-        @keyframes rise{
-            from{
-                opacity:1;
-                transform:translateY(0);
+        .floating-text {
+            position: absolute;
+
+            font-size: 24px;
+            font-weight: bold;
+
+            color: gold;
+
+            pointer-events: none;
+
+            animation: floatUp 1s forwards;
+        }
+
+
+        @keyframes floatUp {
+
+            from {
+                opacity: 1;
+                transform: translateY(0px);
             }
 
-            to{
-                opacity:0;
-                transform:translateY(-100px);
+            to {
+                opacity: 0;
+                transform: translateY(-80px);
             }
+
         }
