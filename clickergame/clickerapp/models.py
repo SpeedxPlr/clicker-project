@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
-
+from django.utils.timezone import now
 
 
 class Profile(models.Model):
@@ -8,7 +8,7 @@ class Profile(models.Model):
     score = models.IntegerField(default=0)
     points_per_click = models.IntegerField(default=1)
     crystals = models.IntegerField(default=0)
-
+    last_collected = models.DateTimeField(default=now)
     def __str__(self):
         return self.user.username
 
@@ -21,6 +21,8 @@ class Upgrade(models.Model):
     ADDITIVE_POWER = "additive_power"
     ADDITIVE_MULTIPLIER = "additive_multiplier"
     GLOBAL_MULTIPLIER = "global_multiplier"
+    CRYSTAL_ADDITIVE = "crystal_additive"
+    CRYSTAL_MULTIPLIER = "crystal_multiplier"
 
 
     EFFECT_TYPES = [
@@ -29,6 +31,9 @@ class Upgrade(models.Model):
         (ADDITIVE_POWER, "Additive Power"),
         (ADDITIVE_MULTIPLIER, "Additive Multiplier"),
         (GLOBAL_MULTIPLIER, "Global Multiplier"),
+
+        (CRYSTAL_ADDITIVE, "Crystal Additive"),
+        (CRYSTAL_MULTIPLIER, "Crystal Multiplier"),
     ]
 
     EXPONENTIAL = "exp"
@@ -42,9 +47,20 @@ class Upgrade(models.Model):
     ]
 
 
+    NORMAL = "normal"
+    PRESTIGE = "prestige"
+
+    CURRENCIES = [
+        (NORMAL,"Normal"),
+        (PRESTIGE,"Prestige"),
+    ]
+
+
+
     name = models.CharField(max_length=100)
     description = models.TextField()
 
+    currency = models.CharField(max_length=20,choices=CURRENCIES,default=NORMAL)
 
     base_cost = models.IntegerField()
 
@@ -95,6 +111,7 @@ class Upgrade(models.Model):
         return self.base_cost
 
 class ProfileUpgrade(models.Model):
+
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     upgrade = models.ForeignKey(Upgrade, on_delete=models.CASCADE)
     level = models.IntegerField(default=0)
@@ -102,66 +119,5 @@ class ProfileUpgrade(models.Model):
     class Meta:
         unique_together = ("profile", "upgrade")
 
-class PrestigeUpgrade(models.Model):
 
 
-
-
-    name = models.CharField(
-
-        max_length=100
-    )
-
-
-    description = models.TextField()
-
-
-    cost = models.IntegerField()
-
-
-    effect_type = models.CharField(
-
-        max_length=50
-
-    )
-
-
-    effect_value = models.FloatField()
-
-
-    repeatable = models.BooleanField(
-
-        default=False
-
-    )
-
-class PlayerPrestigeUpgrade(
-
-    models.Model
-
-):
-
-
-    profile = models.ForeignKey(
-
-        Profile,
-
-        on_delete=models.CASCADE
-
-    )
-
-
-    upgrade = models.ForeignKey(
-
-        PrestigeUpgrade,
-
-        on_delete=models.CASCADE
-
-    )
-
-
-    level = models.IntegerField(
-
-        default=0
-
-    )

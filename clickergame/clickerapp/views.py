@@ -7,8 +7,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .services import get_upgrade_data, calculate_ppc, calculate_prestige
-
+from .services import get_upgrade_data, calculate_ppc, calculate_crystals, collect_offline
+from .models import Upgrade
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
@@ -20,6 +20,10 @@ def home(request):
     score = 0
     upgrades = []
 
+    profile = request.user.profile
+
+    earned = collect_offline(profile)
+
     if request.user.is_authenticated:
         profile, _ = Profile.objects.get_or_create(
             user=request.user
@@ -27,6 +31,7 @@ def home(request):
 
         score = profile.score
         ppc = calculate_ppc(profile)
+        next_crystals = calculate_crystals(profile)
         rank = (
             Profile.objects
             .filter(score__gt=profile.score)
@@ -36,10 +41,22 @@ def home(request):
 
         upgrades = get_upgrade_data(profile)
 
+        normal = []
+        prestige = []
+
+        for item in upgrades:
+            if item['upgrade'].currency == Upgrade.NORMAL:
+                normal.append(item)
+            else:
+                prestige.append(item)
+
     return render(request, "home.html", {
         "score": score,
-        "upgrades": upgrades,
+        "upgrades":normal,
+        "prestige_upgrades":prestige,
+        "profile":profile,
         "rank": rank,
+        'next_crystals':next_crystals
     })
 
 
@@ -108,7 +125,19 @@ def add_point(request):
     profile.score += reward
     profile.save()
 
-    return JsonResponse({'score': profile.score,'reward': reward})
+    return JsonResponse({
+    'score': profile.score,
+
+    'reward': reward,
+
+    'ppc': calculate_ppc(profile),
+
+    'crystals': profile.crystals,
+
+    'next_crystals': calculate_crystals(profile),
+
+    'upgrades': build_upgrade_json(profile),
+})
 
 
 def user_score(user):
@@ -175,17 +204,26 @@ def buy_upgrade(request, upgrade_id):
             status=400
         )
 
-    cost = upgrade.get_cost(
-        profile_upgrade.level
-    )
+    cost = upgrade.get_cost(profile_upgrade.level)
 
-    if profile.score < cost:
-        return JsonResponse(
-            {"error": "Not enough points"},
-            status=400
-        )
+    if upgrade.currency == Upgrade.NORMAL:
 
-    profile.score -= cost
+        money = profile.score
+
+    else:
+
+        money = profile.crystals
+
+    if money < cost:
+
+        return JsonResponse({"error":"Not enough currency"})
+
+
+    if upgrade.currency == Upgrade.NORMAL:
+        profile.score -= cost
+
+    else:
+        profile.crystals -= cost
     profile_upgrade.level += 1
 
     stats = calculate_player_stats(profile)
@@ -200,9 +238,14 @@ def buy_upgrade(request, upgrade_id):
     return JsonResponse({
         "success": True,
         "score": profile.score,
+        "crystals":profile.crystals,
         "level": profile_upgrade.level,
         "new_cost": upgrade.get_cost(profile_upgrade.level),
-        "ppc": calculate_ppc(profile)
+        "ppc": calculate_ppc(profile),
+        "new_cost": upgrade.get_cost(profile_upgrade.level),
+        "next_crystals":calculate_crystals(profile),
+        "upgrades":build_upgrade_json(profile)
+
     })
 
 from .models import Profile
@@ -222,24 +265,48 @@ def leaderboard(request):
         {'players': players}
     )
 
+
+def auto_click(request):
+    profile = request.user.profile
+
+    stats = calculate_player_stats(profile)
+
+    ppc = calculate_ppc(profile)
+
+    gained = (
+        stats["auto_clicks_per_second"]
+        * ppc
+    )
+
+    profile.score += int(gained)
+    profile.save()
+
+    return JsonResponse({
+    "success": True,
+    "score": profile.score,
+    "crystals": profile.crystals,
+    "ppc": calculate_ppc(profile),
+    "next_crystals": calculate_crystals(profile),
+    "upgrades": build_upgrade_json(profile),
+    })
+
 @login_required
 def prestige(request):
 
     profile = request.user.profile
 
+    if profile.score < 10000:
+        return JsonResponse({
+            "success": False,
+            "error": "You need at least 10,000 score to prestige."
+        })
 
-    gained = calculate_prestige(
-        profile.score
-    )
+    gained = calculate_crystals(profile)
 
 
     if gained <= 0:
 
-        return JsonResponse({
-
-            "error":"Not enough score"
-
-        })
+        return JsonResponse({"error":"Not enough score"})
 
 
     profile.crystals += gained
@@ -248,22 +315,45 @@ def prestige(request):
     profile.score = 0
 
 
-    ProfileUpgrade.objects.filter(
-
-        profile=profile
-
-    ).delete()
+    ProfileUpgrade.objects.filter(profile=profile,upgrade__currency=Upgrade.NORMAL).delete()
 
 
     profile.save()
 
+    upgrades = get_upgrade_data(profile)
+
 
     return JsonResponse({
+        
+    "success":True,
 
-        "success":True,
+    "score":profile.score,
 
-        "gained":gained,
+    "crystals":profile.crystals,
 
-        "crystals":profile.crystals
+    "ppc":calculate_ppc(profile),
+
+    "next_crystals":calculate_crystals(profile),
+
+    "upgrades":build_upgrade_json(profile)
 
     })
+
+def build_upgrade_json(profile):
+
+    upgrades = get_upgrade_data(profile)
+
+    return [
+
+        {
+            "id":item['upgrade'].id,
+
+            "level":item['level'],
+
+            "cost":item['cost']
+
+        }
+
+        for item in upgrades
+
+    ]

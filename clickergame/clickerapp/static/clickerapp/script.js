@@ -1,12 +1,87 @@
-document.addEventListener("DOMContentLoaded", () => {
-
-    const buttons = document.querySelectorAll(".buy-btn");
-
-    console.log("Buttons found:", buttons.length);
-
-});
 
 
+function refreshUI(data) {
+
+    console.log("Refreshing");
+    console.log(data);
+
+
+    if (data.score !== undefined) {
+
+        document.getElementById("score").textContent =
+            data.score;
+
+        const button =
+            document.getElementById(
+                "prestige-button"
+            );
+
+        if (button) {
+
+            if (data.score < 10000) {
+
+                button.textContent =
+                    `Need ${10000-data.score} more score`;
+
+            }
+
+            else {
+
+                button.innerHTML =
+                    `Prestige for <b>${data.next_crystals}</b>💎`;
+
+            }
+
+        }
+
+    }
+
+
+    if (data.crystals !== undefined) {
+
+        document.getElementById("crystals")
+            .textContent =
+            data.crystals;
+
+    }
+
+
+    if (data.ppc !== undefined) {
+
+        document.getElementById("ppc")
+            .textContent =
+            data.ppc;
+
+    }
+
+
+    if (data.upgrades) {
+
+        data.upgrades.forEach(upgrade => {
+
+            const card =
+                document.querySelector(
+
+                    `.upgrade[data-id="${upgrade.id}"]`
+
+                );
+
+            if (!card) return;
+
+            card.querySelector(".level")
+                .textContent =
+                upgrade.level;
+
+
+            card.querySelector(".cost")
+                .textContent =
+                upgrade.cost;
+
+        });
+
+    }
+
+}
 
 document.addEventListener("DOMContentLoaded", function () {
 const button = document.getElementById("click-button");
@@ -19,8 +94,8 @@ if (button) {
             .then(res => res.json())
             .then(data => {
 
-                document.getElementById("score").innerText =
-                    data.score;
+                refreshUI(data);
+
 
 
                 createFloatingText("+" + data.reward);
@@ -36,17 +111,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const buttons = document.querySelectorAll(".buy-btn");
 
-    document.querySelectorAll(".buy-btn").forEach(button => {
+    buttons.forEach(button => {
 
-    button.addEventListener("click", () => {
+        button.addEventListener("click", () => {
 
-        const card = button.closest(".upgrade");
+            const upgradeId =
+                button.closest(".upgrade").dataset.id;
 
-        buyUpgrade(card.dataset.id, button);
+            console.log("Clicked", upgradeId);
+
+            buyUpgrade(upgradeId, button);
+
+        });
 
     });
-
-});
 
 });
 
@@ -90,88 +168,64 @@ function updateScore() {
 }
 
 async function buyUpgrade(upgradeId, button) {
-
-    console.log("Buying", upgradeId);
-
     const response = await fetch(
         `/buy-upgrade/${upgradeId}/`
     );
 
+
     if (!response.ok) {
+
         console.error(
             "Request failed:",
             response.status
         );
+
         return;
     }
+
 
     const data = await response.json();
 
     console.log(data);
 
+
     if (data.success) {
 
-        document.getElementById("score").textContent = data.score;
-        
-        document.getElementById("ppc").textContent = data.ppc;
+        refreshUI(data);
 
-        const card = button.closest(".upgrade");
-
-
-        card.querySelector(".level").textContent = data.level;
-
-
-        card.querySelector(".cost").textContent = data.new_cost;
     }
 
     else {
+
         alert(data.error);
+
     }
 
 }
 
-    async function prestige(){
+async function prestige(){
 
 
-    const response =
-
-    await fetch(
-
-    "/prestige/"
-
-    );
+    const response = await fetch("/prestige/");
 
 
-    const data =
+    const data = await response.json();
 
-    await response.json();
-
-
-    if(data.success){
+    if(data.success){refreshUI(data);}
+    };
 
 
-    alert(
-
-    `+${data.gained} crystals`
-
-    );
-
-
-    document.getElementById(
-
-    "crystals"
-
-    ).textContent =
-
-    data.crystals;
-
-
-    }
-    }
-
-document.getElementById("prestige-btn").addEventListener("click",prestige);
+document.getElementById("prestige-button").addEventListener("click",prestige);
 
 
 
 // update every second
-setInterval(updateScore, 200);
+
+setInterval(async () => {
+
+    const response = await fetch("/auto-click/");
+    const data = await response.json();
+
+        refreshUI(data);
+
+}, 1000);

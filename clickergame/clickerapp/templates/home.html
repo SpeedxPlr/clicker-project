@@ -23,7 +23,7 @@ Home
 <button id="click-button">Click</button>
 </div>
 
-<button id="prestige-btn">Prestige</button>
+<button id="prestige-button"  {% if score < 10000 %}disabled{% endif %} >Prestige for <b>{{next_crystals}}</b>💎</button>
 
 {% for item in upgrades %}
 <div class="upgrade" data-id="{{item.upgrade.id}}">
@@ -43,6 +43,11 @@ Home
     Cost:
     <span class="cost">
         {{ item.cost }}
+        {% if item.upgrade.currency == 'prestige' %}
+        💎
+        {% else %}
+            Points
+        {% endif %}
     </span>
     </p>
 
@@ -52,4 +57,39 @@ Home
 
 </div>
 {% endfor %}
+
+<h2>Crystal Upgrades</h2>
+
+{% for item in prestige_upgrades %}
+
+<div class="upgrade" data-id="{{ item.upgrade.id }}">
+
+    <h3>{{ item.upgrade.name }}</h3>
+
+    <p>{{ item.upgrade.description }}</p>
+
+    <h2>
+    Level:
+    <span class="level">
+        {{ item.level }}
+    </span>
+    </h2>
+
+    <p>
+        Cost:
+        <span class="cost">{{ item.cost }}</span> 💎
+    </p>
+
+    <button class="buy-btn">
+        Buy
+    </button>
+
+</div>
+
+{% empty %}
+
+<p>No prestige upgrades found.</p>
+
+{% endfor %}
+
 {% endblock %}

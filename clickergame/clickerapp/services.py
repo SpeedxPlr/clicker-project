@@ -4,13 +4,24 @@ from .models import ProfileUpgrade, Upgrade
 
 def calculate_player_stats(profile):
     stats = {
-        "click_power": 1,
-        "auto_clicks_per_second": 0,
+        'click_power':1,
         'additive_power':0,
-        "additive_multiplier": 1.0,
-        "global_multiplier": 1.0,
-        
-    }
+        'additive_multiplier':1,
+        'global_multiplier':1,
+
+
+        'auto_clicks_per_second':0,
+
+
+        'crystal_additive':0,
+        'crystal_multiplier':1,
+
+
+        'prestige_keep_upgrades':0,
+        'prestige_keep_score':0,
+        'prestige_discount':1,
+
+        }
 
     upgrades = ProfileUpgrade.objects.filter(profile=profile)
 
@@ -34,6 +45,12 @@ def calculate_player_stats(profile):
 
         elif pu.upgrade.effect_type == Upgrade.GLOBAL_MULTIPLIER:
             stats["global_multiplier"] *= (1 + pu.upgrade.effect_value) ** pu.level
+        
+        elif pu.upgrade.effect_type == Upgrade.CRYSTAL_ADDITIVE:
+            stats["crystal_additive"] += value
+
+        elif pu.upgrade.effect_type == Upgrade.CRYSTAL_MULTIPLIER:
+            stats["crystal_multiplier"] *= ((1 + pu.upgrade.effect_value)** pu.level)
 
     return stats
 
@@ -72,6 +89,64 @@ import math
 
 
 def calculate_prestige(score):
+    score = max(score,0)
     return int(
-        5 * math.sqrt(score/10000)
+        20 * math.sqrt(score/10000)
     )
+
+def calculate_crystals(profile):
+
+    stats = calculate_player_stats(profile)
+
+
+    base = calculate_prestige(
+        profile.score
+    )
+
+
+    crystals = (
+
+        (base + stats["crystal_additive"])
+
+        *
+
+        stats["crystal_multiplier"]
+
+    )
+
+
+    return int(crystals)
+
+from django.utils.timezone import now
+
+
+def collect_offline(profile):
+
+    stats = calculate_player_stats(profile)
+
+    aps = stats["auto_clicks_per_second"]
+
+    current = now()
+
+    elapsed = (
+        current
+        - profile.last_collected
+    ).total_seconds()
+
+    earned = int(
+
+        aps * elapsed
+
+    )
+
+
+    profile.score += earned
+
+
+    profile.last_collected = current
+
+
+    profile.save()
+
+
+    return earned

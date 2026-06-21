@@ -15,7 +15,7 @@
             padding: 20px;
         }
 
-       #click-button {
+        #click-button {
             width: 80%;
             height: 250px;
             align-self: center;
@@ -41,6 +41,26 @@
         #click-button:active {
             transform: scale(.95);
         }
+
+        #prestige-button{
+            width: 80%;
+            height: 250px;
+            align-self: center;
+            border-radius: 16px;
+
+            font-size: 40px;
+
+            border: none;
+
+            background: #ff79f6;
+
+            color: white;
+
+            cursor: pointer;
+
+            transition: transform .1s;
+        }
+
         #score-text {
             font-size: 48px;
 
@@ -48,20 +68,29 @@
 
         .navbar {
             position: fixed;
+            top:0;
+            left:0;
+            width:100%;
+            z-index:1000;
 
-            top: 0;
+            background:#1E90FF;
 
-            left: 0;
+            display:flex;
+            align-items:center;
 
-            width: 100%;
-
-            z-index: 1000;
-
-            background-color: #1E90FF;
+            gap:10px;
+        }
+        
+        .logout-form{
+        margin:0;
+        padding:0;
         }
 
+        .nav-button:hover {
+            background-color: rgba(255,255,255,0.15);
+        }
 
-        .navbar a {
+        .navbar a{
 
             color: white;
 
@@ -78,8 +107,24 @@
             transition: 0.3s;
         }
 
+       .nav-button{
+            background:none;
+            border:none;
 
-        .navbar a:hover {
+            color:white;
+
+            font:inherit;
+            font-weight:bold;
+
+            padding:10px 15px;
+
+            cursor:pointer;
+
+            border-radius:5px;
+        }
+
+
+        .navbar a:hover,.nav-button:hover {
 
             background-color: #1565C0;
 
@@ -92,6 +137,7 @@
             color: white;
 
         }
+
 
         .upgrade{
 
