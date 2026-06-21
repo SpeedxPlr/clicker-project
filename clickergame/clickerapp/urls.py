@@ -19,4 +19,5 @@ urlpatterns = [
     path("buy-upgrade/<int:upgrade_id>/",views.buy_upgrade,name="buy_upgrade"),
     path("accounts/register/", register_view, name="register"),
     path('leaderboard/',views.leaderboard,name='leaderboard'),
+    path("prestige/",views.prestige,name="prestige")
 ]

@@ -7,7 +7,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .services import get_upgrade_data, calculate_ppc
+from .services import get_upgrade_data, calculate_ppc, calculate_prestige
 
 
 @receiver(post_save, sender=User)
@@ -221,3 +221,49 @@ def leaderboard(request):
         'leaderboard.html',
         {'players': players}
     )
+
+@login_required
+def prestige(request):
+
+    profile = request.user.profile
+
+
+    gained = calculate_prestige(
+        profile.score
+    )
+
+
+    if gained <= 0:
+
+        return JsonResponse({
+
+            "error":"Not enough score"
+
+        })
+
+
+    profile.crystals += gained
+
+
+    profile.score = 0
+
+
+    ProfileUpgrade.objects.filter(
+
+        profile=profile
+
+    ).delete()
+
+
+    profile.save()
+
+
+    return JsonResponse({
+
+        "success":True,
+
+        "gained":gained,
+
+        "crystals":profile.crystals
+
+    })

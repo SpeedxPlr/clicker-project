@@ -130,5 +130,48 @@ async function buyUpgrade(upgradeId, button) {
 
 }
 
+    async function prestige(){
+
+
+    const response =
+
+    await fetch(
+
+    "/prestige/"
+
+    );
+
+
+    const data =
+
+    await response.json();
+
+
+    if(data.success){
+
+
+    alert(
+
+    `+${data.gained} crystals`
+
+    );
+
+
+    document.getElementById(
+
+    "crystals"
+
+    ).textContent =
+
+    data.crystals;
+
+
+    }
+    }
+
+document.getElementById("prestige-btn").addEventListener("click",prestige);
+
+
+
 // update every second
 setInterval(updateScore, 200);

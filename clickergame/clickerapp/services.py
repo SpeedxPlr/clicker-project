@@ -67,3 +67,11 @@ def calculate_ppc(profile):
         * stats["additive_multiplier"]
         * stats["global_multiplier"]
     )
+
+import math
+
+
+def calculate_prestige(score):
+    return int(
+        5 * math.sqrt(score/10000)
+    )

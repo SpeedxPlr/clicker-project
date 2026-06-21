@@ -7,6 +7,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     score = models.IntegerField(default=0)
     points_per_click = models.IntegerField(default=1)
+    crystals = models.IntegerField(default=0)
 
     def __str__(self):
         return self.user.username
@@ -93,7 +94,6 @@ class Upgrade(models.Model):
         
         return self.base_cost
 
-
 class ProfileUpgrade(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     upgrade = models.ForeignKey(Upgrade, on_delete=models.CASCADE)
@@ -102,3 +102,66 @@ class ProfileUpgrade(models.Model):
     class Meta:
         unique_together = ("profile", "upgrade")
 
+class PrestigeUpgrade(models.Model):
+
+
+
+
+    name = models.CharField(
+
+        max_length=100
+    )
+
+
+    description = models.TextField()
+
+
+    cost = models.IntegerField()
+
+
+    effect_type = models.CharField(
+
+        max_length=50
+
+    )
+
+
+    effect_value = models.FloatField()
+
+
+    repeatable = models.BooleanField(
+
+        default=False
+
+    )
+
+class PlayerPrestigeUpgrade(
+
+    models.Model
+
+):
+
+
+    profile = models.ForeignKey(
+
+        Profile,
+
+        on_delete=models.CASCADE
+
+    )
+
+
+    upgrade = models.ForeignKey(
+
+        PrestigeUpgrade,
+
+        on_delete=models.CASCADE
+
+    )
+
+
+    level = models.IntegerField(
+
+        default=0
+
+    )
