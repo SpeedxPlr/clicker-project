@@ -61,6 +61,25 @@
             transition: transform .1s;
         }
 
+        #asteroid-button{
+            width: 80%;
+            height: 250px;
+            align-self: center;
+            border-radius: 16px;
+
+            font-size: 40px;
+
+            border: none;
+
+            background: #352716;
+
+            color: white;
+
+            cursor: pointer;
+
+            transition: transform .1s;
+        }
+
         #score-text {
             font-size: 48px;
 

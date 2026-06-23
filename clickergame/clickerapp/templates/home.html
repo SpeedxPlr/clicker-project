@@ -11,8 +11,13 @@ Home
 {% if user.is_authenticated %}
 <h2>Rank: {{ rank }}</h2>
 {% endif %}
-<span id="score-text"><p>Score: <span id="score">0</span></p></span>
+<span id="score-text"><p>Rocks: <span id="score">0</span></p></span>
+{% if profile.prestige_unlocked %}
 <p>Crystals:<span id="crystals">{{profile.crystals}}</span></p>
+{% endif %}
+{% if profile.asteroid_unlocked %}
+<p>Asteroids:<span id="asteroid">{{profile.asteroid}}</span></p>
+{% endif %}
 <h2>
     Points per Click:
     <span id="ppc">
@@ -43,23 +48,21 @@ Home
     Cost:
     <span class="cost">
         {{ item.cost }}
-        {% if item.upgrade.currency == 'prestige' %}
-        💎
-        {% else %}
-            Points
-        {% endif %}
     </span>
     </p>
 
     <button class="buy-btn" >
         Buy
     </button>
+    <button class="buy-max-btn">
+        Buy Max
+    </button>
 
 </div>
 {% endfor %}
 
 <h2>Crystal Upgrades</h2>
-
+{% if profile.prestige_unlocked %}
 {% for item in prestige_upgrades %}
 
 <div class="upgrade" data-id="{{ item.upgrade.id }}">
@@ -83,13 +86,68 @@ Home
     <button class="buy-btn">
         Buy
     </button>
+    <button class="buy-max-btn">
+        Buy Max
+    </button>
+</div>
+
+{% endfor %}
+
+{% else %}
+<p>
+    🔒 Prestige unlocks at 10,000 Rocks
+</p>
+
+{% endif %}
+
+
+
+
+{% if score >= 1000000 %}
+<button id="asteroid-button">
+    Ascend for {{ next_asteroids }} ☄️
+</button>
+{% endif %}
+{% if profile.asteroid_unlocked %}
+
+
+
+
+{% for item in asteroid_upgrades %}
+
+<div class="upgrade" data-id="{{ item.upgrade.id }}">
+
+    <h3>{{ item.upgrade.name }}</h3>
+
+    <p>{{ item.upgrade.description }}</p>
+
+    <p>
+        Level:
+        <span class="level">
+            {{ item.level }}
+        </span>
+    </p>
+
+    <p>
+        Cost:
+        <span class="cost">
+            {{ item.cost }}
+        </span>
+        ☄️
+    </p>
+
+    <button class="buy-btn">
+        Buy
+    </button>
+
+    <button class="buy-max-btn">
+        Buy Max
+    </button>
 
 </div>
 
-{% empty %}
-
-<p>No prestige upgrades found.</p>
-
 {% endfor %}
+
+{% endif %}
 
 {% endblock %}

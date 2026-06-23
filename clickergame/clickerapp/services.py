@@ -21,6 +21,10 @@ def calculate_player_stats(profile):
         'prestige_keep_score':0,
         'prestige_discount':1,
 
+        'asteroid_gain':1,
+        'crystal_keep':0,
+        'prestige_keep':0,
+        'autoclick_multiplier':1,
         }
 
     upgrades = ProfileUpgrade.objects.filter(profile=profile)
@@ -51,6 +55,14 @@ def calculate_player_stats(profile):
 
         elif pu.upgrade.effect_type == Upgrade.CRYSTAL_MULTIPLIER:
             stats["crystal_multiplier"] *= ((1 + pu.upgrade.effect_value)** pu.level)
+
+        elif pu.upgrade.effect_type == Upgrade.ASTEROID_GAIN:
+            stats['asteroid_gain'] *= (1 +pu.upgrade.effect_value)**pu.level
+
+        elif pu.upgrade.effect_type == Upgrade.CRYSTAL_KEEP:
+            stats['crystal_keep'] += (pu.upgrade.effect_value*pu.level)
+        elif pu.upgrade.effect_type == Upgrade.PRESTIGE_KEEP:
+            stats['prestige_keep'] += (pu.upgrade.effect_value*pu.level)
 
     return stats
 
@@ -91,7 +103,8 @@ import math
 def calculate_prestige(score):
     score = max(score,0)
     return int(
-        20 * math.sqrt(score/10000)
+        10 * (score/10000)**0.75
+    
     )
 
 def calculate_crystals(profile):
@@ -150,3 +163,29 @@ def collect_offline(profile):
 
 
     return earned
+
+def calculate_asteroids(score):
+
+    if score < 1_000_000:
+        return 0
+
+
+    return int(5 * math.sqrt(score / 1_000_000))
+
+def serialize_upgrades(profile):
+
+    return [
+
+        {
+
+            "id": item["upgrade"].id,
+
+            "level": item["level"],
+
+            "cost": item["cost"]
+
+        }
+
+        for item in get_upgrade_data(profile)
+
+    ]

@@ -20,6 +20,7 @@ urlpatterns = [
     path("accounts/register/", register_view, name="register"),
     path('leaderboard/',views.leaderboard,name='leaderboard'),
     path("auto-click/",views.auto_click,name="auto_click"),
-    path("prestige/",views.prestige,name="prestige")
-
+    path("prestige/",views.prestige,name="prestige"),
+    path("asteroid-reset/",views.asteroid_reset,name="asteroid_reset"),
+    path("buy-max/<int:upgrade_id>/",views.buy_max,name="buy_max")
 ]

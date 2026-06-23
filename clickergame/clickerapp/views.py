@@ -7,7 +7,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .services import get_upgrade_data, calculate_ppc, calculate_crystals, collect_offline
+from .services import get_upgrade_data, calculate_ppc, calculate_crystals, collect_offline, calculate_asteroids, serialize_upgrades
 from .models import Upgrade
 
 @receiver(post_save, sender=User)
@@ -19,6 +19,8 @@ def create_profile(sender, instance, created, **kwargs):
 def home(request):
     score = 0
     upgrades = []
+
+
 
     profile = request.user.profile
 
@@ -43,20 +45,28 @@ def home(request):
 
         normal = []
         prestige = []
+        asteroid = []
 
         for item in upgrades:
             if item['upgrade'].currency == Upgrade.NORMAL:
                 normal.append(item)
-            else:
+            elif item['upgrade'].currency == Upgrade.PRESTIGE:
                 prestige.append(item)
+
+            elif item['upgrade'].currency == Upgrade.ASTEROID:
+                asteroid.append(item)
 
     return render(request, "home.html", {
         "score": score,
-        "upgrades":normal,
+        "upgrades": normal,
+        "prestige_upgrades": prestige,
+        "asteroid_upgrades": asteroid,
         "prestige_upgrades":prestige,
         "profile":profile,
         "rank": rank,
-        'next_crystals':next_crystals
+        'next_crystals':next_crystals,
+        "asteroid_upgrades": asteroid,
+        "next_asteroids": calculate_asteroids(profile.score),
     })
 
 
@@ -207,12 +217,13 @@ def buy_upgrade(request, upgrade_id):
     cost = upgrade.get_cost(profile_upgrade.level)
 
     if upgrade.currency == Upgrade.NORMAL:
-
         money = profile.score
 
-    else:
-
+    elif upgrade.currency == Upgrade.PRESTIGE:
         money = profile.crystals
+
+    elif upgrade.currency == Upgrade.ASTEROID:
+        money = profile.asteroids
 
     if money < cost:
 
@@ -222,8 +233,11 @@ def buy_upgrade(request, upgrade_id):
     if upgrade.currency == Upgrade.NORMAL:
         profile.score -= cost
 
-    else:
+    elif upgrade.currency == Upgrade.PRESTIGE:
         profile.crystals -= cost
+
+    elif upgrade.currency == Upgrade.ASTEROID:
+        profile.asteroids -= cost
     profile_upgrade.level += 1
 
     stats = calculate_player_stats(profile)
@@ -247,6 +261,112 @@ def buy_upgrade(request, upgrade_id):
         "upgrades":build_upgrade_json(profile)
 
     })
+
+def buy_max(request, upgrade_id):
+
+    profile = request.user.profile
+
+
+    upgrade = get_object_or_404(
+
+        Upgrade,
+
+        id=upgrade_id
+
+    )
+
+
+    pu,_ = ProfileUpgrade.objects.get_or_create(
+
+        profile=profile,
+
+        upgrade=upgrade
+
+    )
+
+
+    bought = 0
+
+
+    while True:
+
+
+        cost = upgrade.get_cost(
+
+            pu.level
+
+        )
+
+
+        money = (
+
+            profile.score
+
+            if upgrade.currency==Upgrade.NORMAL
+
+            else profile.crystals
+
+        )
+
+
+        if money < cost:
+
+            break
+
+
+        if upgrade.currency==Upgrade.NORMAL:
+
+            profile.score -= cost
+
+        else:
+
+            profile.crystals -= cost
+
+
+        pu.level += 1
+
+        bought += 1
+
+
+        if not upgrade.is_repeatable:
+
+            break
+
+
+    profile.save()
+    pu.save()
+    return JsonResponse({
+
+    "success": True,
+
+    "score": profile.score,
+
+    "crystals": profile.crystals,
+
+    "ppc": calculate_ppc(profile),
+
+    "next_crystals": calculate_crystals(profile),
+
+    "bought": bought,
+
+    "upgrades": [
+
+        {
+
+            "id": item["upgrade"].id,
+
+            "level": item["level"],
+
+            "cost": item["cost"]
+
+        }
+
+        for item in get_upgrade_data(profile)
+
+    ]
+
+})
+
 
 from .models import Profile
 
@@ -273,10 +393,7 @@ def auto_click(request):
 
     ppc = calculate_ppc(profile)
 
-    gained = (
-        stats["auto_clicks_per_second"]
-        * ppc
-    )
+    gained = (stats["auto_clicks_per_second"]*stats["autoclick_multiplier"])
 
     profile.score += int(gained)
     profile.save()
@@ -317,6 +434,7 @@ def prestige(request):
 
     ProfileUpgrade.objects.filter(profile=profile,upgrade__currency=Upgrade.NORMAL).delete()
 
+    profile.prestige_unlocked = True
 
     profile.save()
 
@@ -341,6 +459,9 @@ def prestige(request):
 
 def build_upgrade_json(profile):
 
+
+
+
     upgrades = get_upgrade_data(profile)
 
     return [
@@ -357,3 +478,66 @@ def build_upgrade_json(profile):
         for item in upgrades
 
     ]
+
+@login_required
+def asteroid_reset(request):
+
+    profile = request.user.profile
+    stats = calculate_player_stats(profile)
+
+    gained = int(
+        calculate_asteroids(profile.score)*stats['asteroid_gain']
+    )
+
+
+    if gained <= 0:
+
+        return JsonResponse({
+
+            "error":"Need 1M Rocks"
+
+        })
+
+
+    profile.asteroids += gained
+
+
+    profile.asteroid_unlocked = True
+
+
+    profile.score = 0
+
+
+    keep = int(profile.crystals*stats['crystal_keep'])
+    profile.crystals = keep
+
+    ProfileUpgrade.objects.filter(
+    profile=profile,
+    upgrade__currency__in=[
+        Upgrade.NORMAL,
+        Upgrade.PRESTIGE
+        ]).delete()
+
+
+
+    profile.save()
+
+    return JsonResponse({
+
+        "success":True,
+
+        "score":profile.score,
+
+        "crystals":profile.crystals,
+
+        "asteroids":profile.asteroids,
+
+        "ppc":calculate_ppc(profile),
+
+        "next_crystals":calculate_crystals(profile),
+
+        "next_asteroids":calculate_asteroids(profile.score),
+
+        "upgrades":serialize_upgrades(profile)
+
+    })

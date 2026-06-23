@@ -9,6 +9,13 @@ class Profile(models.Model):
     points_per_click = models.IntegerField(default=1)
     crystals = models.IntegerField(default=0)
     last_collected = models.DateTimeField(default=now)
+
+    asteroids = models.IntegerField(default=0)
+
+    prestige_unlocked = models.BooleanField(default=False)
+
+    asteroid_unlocked = models.BooleanField(default=False)
+
     def __str__(self):
         return self.user.username
 
@@ -21,9 +28,14 @@ class Upgrade(models.Model):
     ADDITIVE_POWER = "additive_power"
     ADDITIVE_MULTIPLIER = "additive_multiplier"
     GLOBAL_MULTIPLIER = "global_multiplier"
+    
     CRYSTAL_ADDITIVE = "crystal_additive"
     CRYSTAL_MULTIPLIER = "crystal_multiplier"
 
+    ASTEROID_GAIN = "asteroid_gain"
+    CRYSTAL_KEEP = "crystal_keep"
+    PRESTIGE_KEEP = "prestige_keep"
+    AUTOCLICK_MULTIPLIER = "autoclick_multiplier"
 
     EFFECT_TYPES = [
         (CLICK_POWER, "Click Power"),
@@ -34,6 +46,11 @@ class Upgrade(models.Model):
 
         (CRYSTAL_ADDITIVE, "Crystal Additive"),
         (CRYSTAL_MULTIPLIER, "Crystal Multiplier"),
+
+        (ASTEROID_GAIN,"Asteroid Gain"),
+        (CRYSTAL_KEEP,"Keep Crystals"),
+        (PRESTIGE_KEEP,"Keep Prestige"),
+        (AUTOCLICK_MULTIPLIER,"Autoclick Multiplier"),
     ]
 
     EXPONENTIAL = "exp"
@@ -49,10 +66,12 @@ class Upgrade(models.Model):
 
     NORMAL = "normal"
     PRESTIGE = "prestige"
+    ASTEROID = "asteroid"
 
     CURRENCIES = [
         (NORMAL,"Normal"),
         (PRESTIGE,"Prestige"),
+        (ASTEROID,"Asteroid"),
     ]
 
 

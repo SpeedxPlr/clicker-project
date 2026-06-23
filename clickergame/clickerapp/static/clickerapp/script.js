@@ -1,5 +1,4 @@
 
-
 function refreshUI(data) {
 
     console.log("Refreshing");
@@ -21,7 +20,7 @@ function refreshUI(data) {
             if (data.score < 10000) {
 
                 button.textContent =
-                    `Need ${10000-data.score} more score`;
+                    `Need ${10000-data.score} more rocks`;
 
             }
 
@@ -45,6 +44,14 @@ function refreshUI(data) {
 
     }
 
+    if(data.asteroids !== undefined){
+
+    document.getElementById("asteroids")
+        .textContent =
+        data.asteroids;
+
+    }
+
 
     if (data.ppc !== undefined) {
 
@@ -54,6 +61,32 @@ function refreshUI(data) {
 
     }
 
+    if(data.asteroids !== undefined){
+
+    document.getElementById("asteroids")
+        .textContent =
+        data.asteroids;
+
+    }
+
+    const asteroidButton = document.getElementById(
+    "asteroid-button"
+);
+
+
+    if(
+
+        asteroidButton &&
+
+        data.next_asteroids !== undefined
+
+    ){
+
+        asteroidButton.innerHTML =
+
+            `Ascend for <b>${data.next_asteroids}</b>☄️`;
+
+    }
 
     if (data.upgrades) {
 
@@ -215,17 +248,95 @@ async function prestige(){
     };
 
 
-document.getElementById("prestige-button").addEventListener("click",prestige);
+document.addEventListener("DOMContentLoaded", ()=>{
+document.querySelectorAll(".buy-max-btn").forEach(button=>{
+
+    button.addEventListener("click",()=>{
+
+        const id = button.closest(".upgrade").dataset.id;
+
+                console.log("BUY MAX CLICKED");
+
+        buyMax(id);
+
+    });
+
+});
+});
 
 
+
+document.getElementById("asteroid-button")
+    ?.addEventListener("click", asteroidReset);
+
+async function asteroidReset(){
+
+     if(
+
+        !confirm(
+
+            "Ascend? This will reset Rocks, Crystals and their upgrades."
+
+        )
+
+    ){
+
+        return;
+
+    }
+
+    const response = await fetch(
+
+        "/asteroid-reset/"
+
+    );
+
+
+    const data = await response.json();
+
+
+    if(data.success){
+
+        refreshUI(data);
+
+    }
+
+    else{
+
+        alert(data.error);
+
+    }
+
+}
+
+
+async function buyMax(id){
+
+    const response = await fetch(
+
+        `/buy-max/${id}/`
+
+    );
+
+    const data = await response.json();
+
+    if(data.success){
+
+        refreshUI(data);
+
+    }
+}
 
 // update every second
 
+
+document.getElementById("prestige-button").addEventListener("click",prestige);
 setInterval(async () => {
 
     const response = await fetch("/auto-click/");
     const data = await response.json();
 
         refreshUI(data);
+    
 
 }, 1000);
