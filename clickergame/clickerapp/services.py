@@ -25,6 +25,8 @@ def calculate_player_stats(profile):
         'crystal_keep':0,
         'prestige_keep':0,
         'autoclick_multiplier':1,
+        'asteroid_multiplier': 1,
+        'asteroid_gain': 1,
         }
 
     upgrades = ProfileUpgrade.objects.filter(profile=profile)
@@ -164,13 +166,13 @@ def collect_offline(profile):
 
     return earned
 
-def calculate_asteroids(score):
-
-    if score < 1_000_000:
+def calculate_asteroids(profile):
+    stats = calculate_player_stats(profile)
+    if profile.score < 1_000_000:
         return 0
 
 
-    return int(5 * math.sqrt(score / 1_000_000))
+    return int(5 * math.sqrt(profile.score / 1_000_000)) * stats["asteroid_multiplier"]
 
 def serialize_upgrades(profile):
 

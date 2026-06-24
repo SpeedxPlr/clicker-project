@@ -66,7 +66,8 @@ def home(request):
         "rank": rank,
         'next_crystals':next_crystals,
         "asteroid_upgrades": asteroid,
-        "next_asteroids": calculate_asteroids(profile.score),
+        "ppc": ppc,
+        "next_asteroids": calculate_asteroids(profile),
     })
 
 
@@ -372,18 +373,30 @@ from .models import Profile
 
 
 def leaderboard(request):
-    players = Profile.objects.select_related(
-        'user'
-    ).order_by('-score')[:100]
-    profile = request.user.profile
 
+    profiles = Profile.objects.order_by("-score")
 
-    rank = (Profile.objects.filter(score__gt=profile.score).count()+1)
-    return render(
-        request,
-        'leaderboard.html',
-        {'players': players}
-    )
+    players = []
+
+    for profile in profiles:
+
+        stats = calculate_player_stats(profile)
+
+        players.append({
+
+            "profile": profile,
+
+            "stats": stats,
+
+            "ppc": calculate_ppc(profile)
+
+        })
+
+    return render(request, "leaderboard.html", {
+
+        "players": players
+
+    })
 
 
 def auto_click(request):
@@ -393,7 +406,7 @@ def auto_click(request):
 
     ppc = calculate_ppc(profile)
 
-    gained = (stats["auto_clicks_per_second"]*stats["autoclick_multiplier"])
+    gained = (stats["auto_clicks_per_second"]*ppc*stats["autoclick_multiplier"])
 
     profile.score += int(gained)
     profile.save()
@@ -486,7 +499,7 @@ def asteroid_reset(request):
     stats = calculate_player_stats(profile)
 
     gained = int(
-        calculate_asteroids(profile.score)*stats['asteroid_gain']
+        calculate_asteroids(profile)*stats['asteroid_gain']
     )
 
 
@@ -536,7 +549,7 @@ def asteroid_reset(request):
 
         "next_crystals":calculate_crystals(profile),
 
-        "next_asteroids":calculate_asteroids(profile.score),
+        "next_asteroids":calculate_asteroids(profile),
 
         "upgrades":serialize_upgrades(profile)
 

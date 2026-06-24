@@ -44,13 +44,13 @@ function refreshUI(data) {
 
     }
 
-    if(data.asteroids !== undefined){
+    if (data.asteroids !== undefined) {
 
     document.getElementById("asteroids")
         .textContent =
         data.asteroids;
 
-    }
+}
 
 
     if (data.ppc !== undefined) {
