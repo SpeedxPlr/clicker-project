@@ -16,7 +16,15 @@
     <link rel="stylesheet" href="{% static 'clickerapp/style.css' %}">
   
 </head>
-<body>
+<body class="
+{% if profile.asteroid_unlocked %}
+asteroid-theme
+{% elif profile.prestige_unlocked %}
+crystal-theme
+{% else %}
+rock-theme
+{% endif %}
+">
     <nav class="navbar">
 
     <a href="{% url 'home' %}">Home</a>
@@ -47,6 +55,6 @@
     </div>
 
 
-  <script src="{% static 'clickerapp/script.js' %}?v=9"></script>
+  <script src="{% static 'clickerapp/script.js' %}?v=12"></script>
 </body>
 </html>

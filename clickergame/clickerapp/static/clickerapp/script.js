@@ -1,6 +1,6 @@
 
 function refreshUI(data) {
-
+    try {
     console.log("Refreshing");
     console.log(data);
 
@@ -35,84 +35,102 @@ function refreshUI(data) {
 
     }
 
+        const button = document.getElementById("prestige-button");
 
-    if (data.crystals !== undefined) {
+        if(button){
 
-        document.getElementById("crystals")
-            .textContent =
-            data.crystals;
+            if(data.score < 10000){
 
-    }
+                button.disabled = true;
 
-    if (data.asteroids !== undefined) {
+                button.textContent =
+                    `Need ${10000-data.score} more Rocks`;
 
-    document.getElementById("asteroids")
-        .textContent =
-        data.asteroids;
+            }
+            else{
 
-}
+                button.disabled = false;
 
+                button.innerHTML =
+                    `Prestige for <b>${data.next_crystals}</b>💎`;
 
-    if (data.ppc !== undefined) {
-
-        document.getElementById("ppc")
-            .textContent =
-            data.ppc;
-
-    }
-
-    if(data.asteroids !== undefined){
-
-    document.getElementById("asteroids")
-        .textContent =
-        data.asteroids;
-
-    }
-
-    const asteroidButton = document.getElementById(
-    "asteroid-button"
-);
+            }
+        }
 
 
-    if(
 
-        asteroidButton &&
+    const crystalText = document.getElementById("crystals");
 
-        data.next_asteroids !== undefined
+    if (crystalText &&data.crystals !== undefined) 
+        {crystalText.textContent =   data.crystals;}
 
-    ){
+    const asteroidText =
+        document.getElementById("asteroids");
 
-        asteroidButton.innerHTML =
 
-            `Ascend for <b>${data.next_asteroids}</b>☄️`;
+    if (
+        asteroidText &&
+        data.asteroids !== undefined
+    ) {
+
+        asteroidText.textContent =
+            data.asteroids;
 
     }
 
-    if (data.upgrades) {
-
-        data.upgrades.forEach(upgrade => {
-
-            const card =
-                document.querySelector(
-
-                    `.upgrade[data-id="${upgrade.id}"]`
-
-                );
-
-            if (!card) return;
-
-            card.querySelector(".level")
-                .textContent =
-                upgrade.level;
 
 
-            card.querySelector(".cost")
-                .textContent =
-                upgrade.cost;
 
+    const asteroidButton = document.getElementById("asteroid-button");
+
+    if (asteroidButton) {
+
+        if (data.score !== undefined) {
+
+            if (data.score < 1000000) {
+
+                asteroidButton.textContent =
+                    `Need ${1000000 - data.score} more Rocks`;
+
+                asteroidButton.disabled = true;
+
+            } else {
+
+                asteroidButton.innerHTML =
+                    `Ascend for <b>${data.next_asteroids || 0}</b> ☄️`;
+
+                asteroidButton.disabled = false;
+            }
+        }
+    }
+
+        if (data.upgrades) {
+
+            data.upgrades.forEach(upgrade => {
+
+            
+            const card = document.querySelector(
+                `.upgrade[data-id="${upgrade.id}"]`
+            );
+
+            if (!card) {console.log("Missing card:", upgrade.id);return;}
+
+            const level = card.querySelector(".level");
+            const cost = card.querySelector(".cost");
+
+            if (level) {level.textContent = upgrade.level;}
+
+            if (cost) {cost.textContent = upgrade.cost;}
         });
-
     }
+
+    console.log("Finished refreshing");
+        }
+        catch(err){
+
+        console.error(err);
+
+        }
 
 }
 
@@ -239,12 +257,19 @@ async function buyUpgrade(upgradeId, button) {
 async function prestige(){
 
 
+    
+    console.log("Prestige started");
+
     const response = await fetch("/prestige/");
 
+    console.log("Response received");
 
     const data = await response.json();
 
-    if(data.success){refreshUI(data);}
+    console.log(data);
+
+    refreshUI(data);
+
     };
 
 
@@ -327,16 +352,68 @@ async function buyMax(id){
     }
 }
 
+
+
+function showCatalogue(type){
+
+    document.querySelectorAll(".upgrade").forEach(card=>{
+
+        card.style.display =
+            card.dataset.type === type
+            ? "flex"
+            : "none";
+
+    });
+
+}
+
+showCatalogue("rock");
+
+document.getElementById("rocks-tab")
+    .onclick = () => showCatalogue("rock");
+
+document.getElementById("crystals-tab")
+    .onclick = () => showCatalogue("crystal");
+
+document.getElementById("asteroids-tab")
+    .onclick = () => showCatalogue("asteroid");
+
 // update every second
 
+document.addEventListener("DOMContentLoaded", () => {
 
-document.getElementById("prestige-button").addEventListener("click",prestige);
+    const prestigeButton =
+        document.getElementById("prestige-button");
+
+    if(prestigeButton){
+
+        prestigeButton.addEventListener(
+            "click",
+            prestige
+        );
+
+        console.log("Prestige listener attached");
+
+    }
+
+});
 setInterval(async () => {
 
-    const response = await fetch("/auto-click/");
-    const data = await response.json();
+      try{
+
+        const response = await fetch("/auto-click/");
+        const data = await response.json();
 
         refreshUI(data);
-    
 
-}, 1000);
+    }
+
+    catch(error){
+
+        console.log("Autoclick failed");
+        console.log(error);
+
+    }
+
+
+},1000);

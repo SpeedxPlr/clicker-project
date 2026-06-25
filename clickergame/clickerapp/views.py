@@ -9,7 +9,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .services import get_upgrade_data, calculate_ppc, calculate_crystals, collect_offline, calculate_asteroids, serialize_upgrades
 from .models import Upgrade
-
+import traceback
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
     if created:
@@ -33,7 +33,20 @@ def home(request):
 
         score = profile.score
         ppc = calculate_ppc(profile)
-        next_crystals = calculate_crystals(profile)
+
+        stats = calculate_player_stats(profile)
+
+        next_crystals = int(
+            (calculate_crystals(profile)+stats["crystal_additive"])* stats['crystal_multiplier']
+        )
+
+        stats = calculate_player_stats(profile)
+
+        next_asteroids = int(
+            calculate_asteroids(profile)
+            * stats['asteroid_gain']
+        )
+
         rank = (
             Profile.objects
             .filter(score__gt=profile.score)
@@ -67,7 +80,9 @@ def home(request):
         'next_crystals':next_crystals,
         "asteroid_upgrades": asteroid,
         "ppc": ppc,
-        "next_asteroids": calculate_asteroids(profile),
+        "score": profile.score,
+        "asteroids": profile.asteroids,
+        "next_asteroids":calculate_asteroids(profile),
     })
 
 
@@ -148,6 +163,12 @@ def add_point(request):
     'next_crystals': calculate_crystals(profile),
 
     'upgrades': build_upgrade_json(profile),
+
+    "score": profile.score,
+
+    "asteroids": profile.asteroids,
+
+    "next_asteroids":calculate_asteroids(profile),
 })
 
 
@@ -179,13 +200,6 @@ def buy_upgrade(request, upgrade_id):
             {"error": "Login required"},
             status=401
         )
-    
-
-    print("Upgrade requested:", upgrade_id)
-
-    upgrades = Upgrade.objects.all()
-    print("Existing upgrades:", list(upgrades))
-
 
     profile, _ = Profile.objects.get_or_create(
         user=request.user
@@ -259,7 +273,10 @@ def buy_upgrade(request, upgrade_id):
         "ppc": calculate_ppc(profile),
         "new_cost": upgrade.get_cost(profile_upgrade.level),
         "next_crystals":calculate_crystals(profile),
-        "upgrades":build_upgrade_json(profile)
+        "upgrades":build_upgrade_json(profile),
+        "score": profile.score,
+        "asteroids": profile.asteroids,
+        "next_asteroids": calculate_asteroids(profile),
 
     })
 
@@ -400,25 +417,38 @@ def leaderboard(request):
 
 
 def auto_click(request):
-    profile = request.user.profile
+    try:
+        profile = request.user.profile
 
-    stats = calculate_player_stats(profile)
+        stats = calculate_player_stats(profile)
+        ppc = calculate_ppc(profile)
 
-    ppc = calculate_ppc(profile)
+        gained = (
+            stats["auto_clicks_per_second"]
+            * ppc
+            * stats["autoclick_multiplier"]
+        )
 
-    gained = (stats["auto_clicks_per_second"]*ppc*stats["autoclick_multiplier"])
+        profile.score += int(gained)
+        profile.save()
 
-    profile.score += int(gained)
-    profile.save()
+        return JsonResponse({
+            "success": True,
+            "score": profile.score,
+            "crystals": profile.crystals,
+            "ppc": calculate_ppc(profile),
+            "next_crystals": calculate_crystals(profile),
+            "upgrades": build_upgrade_json(profile),
+            "asteroids": profile.asteroids,
+            "next_asteroids": calculate_asteroids(profile),
+        })
 
-    return JsonResponse({
-    "success": True,
-    "score": profile.score,
-    "crystals": profile.crystals,
-    "ppc": calculate_ppc(profile),
-    "next_crystals": calculate_crystals(profile),
-    "upgrades": build_upgrade_json(profile),
-    })
+    except Exception as e:
+        print(traceback.format_exc())
+        return JsonResponse({
+            "success": False,
+            "error": str(e),
+        }, status=500)
 
 @login_required
 def prestige(request):
@@ -466,7 +496,13 @@ def prestige(request):
 
     "next_crystals":calculate_crystals(profile),
 
-    "upgrades":build_upgrade_json(profile)
+    "upgrades":build_upgrade_json(profile),
+
+    "score": profile.score,
+
+    "asteroids": profile.asteroids,
+
+    "next_asteroids":calculate_asteroids(profile),
 
     })
 

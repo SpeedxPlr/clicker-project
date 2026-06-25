@@ -1,213 +1,716 @@
-        body {
-            font-family: "Montserrat", sans-serif;
-            font-optical-sizing: auto;
-            font-weight: 200;
-            font-style: normal;
-            margin: 0;
-            background:linear-gradient(45deg,#181818,#4a4a55);
-            color: aliceblue;
-        }
-        h1 {
-            font-family: "Roboto Slab", serif;
-            font-size: 64px;
-        }
-        .container {
-            padding: 20px;
-        }
 
-        #click-button {
-            width: 80%;
-            height: 250px;
-            align-self: center;
-            border-radius: 16px;
 
-            font-size: 40px;
+body {
+    
+    font-family: Monsterrat, sans-serif;
+    color: azure;
+    background-color: #2a211a;
 
-            border: none;
+    position:relative;
 
-            background: #4da6ff;
+    min-height:100vh;
 
-            color: white;
+    overflow-x:hidden;
 
-            cursor: pointer;
+}
 
-            transition: transform .1s;
-        }
+body::before{
 
-        #click-button:hover {
-            transform: scale(1.05);
-        }
+content:"";
 
-        #click-button:active {
-            transform: scale(.95);
-        }
+position:fixed;
 
-        #prestige-button{
-            width: 80%;
-            height: 250px;
-            align-self: center;
-            border-radius: 16px;
+inset:0;
 
-            font-size: 40px;
+pointer-events:none;
 
-            border: none;
+opacity:.5;
 
-            background: #ff79f6;
+z-index:-1;
 
-            color: white;
+}
 
-            cursor: pointer;
 
-            transition: transform .1s;
-        }
 
-        #asteroid-button{
-            width: 80%;
-            height: 250px;
-            align-self: center;
-            border-radius: 16px;
+.rock-theme{
 
-            font-size: 40px;
+background:
 
-            border: none;
+radial-gradient(
+rgba(255,255,255,.02) 2px,
+transparent 2px
+)
 
-            background: #352716;
+0 0/60px 60px,
 
-            color: white;
+radial-gradient(
+rgba(255,255,255,.02) 2px,transparent 2px)30px 30px/60px 60px,
 
-            cursor: pointer;
 
-            transition: transform .1s;
-        }
+linear-gradient(135deg,#2c2c2c,#3a3228);
+}
 
-        #score-text {
-            font-size: 48px;
+.rock-theme::before{
 
-        }
+    background:
 
-        .navbar {
-            position: fixed;
-            top:0;
-            left:0;
-            width:100%;
-            z-index:1000;
+    radial-gradient(rgba(255,255,255,.02) 2px,transparent 2px) 0 0/60px 60px;
 
-            background:#1E90FF;
 
-            display:flex;
-            align-items:center;
+}
 
-            gap:10px;
-        }
+
+.crystal-theme{
+
+background:
+
+
+radial-gradient(
+
+    circle at 20% 30%,
+
+    rgba(255,100,255,.08),
+
+    transparent 15%
+
+),
+
+
+radial-gradient(
+
+    circle at 80% 70%,
+
+    rgba(100,200,255,.08),
+
+    transparent 15%
+
+),
+
+
+
+linear-gradient(
+
+    135deg,
+
+    #181818,
+
+    #2f2140
+    );
+
+}
+
+
+.crystal-theme::before{
+
+
+background:
+
+
+radial-gradient(
+
+rgba(255,0,255,.05) 3px,
+
+transparent 3px
+
+)
+
+
+0 0/120px 120px;
+
+
+}
+
+
+
+.asteroid-theme{
+
+
+background:
+
+
+radial-gradient(
+
+rgba(255,255,255,.03) 1px,
+
+transparent 1px
+
+)
+
+0 0/80px 80px,
+
+
+
+radial-gradient(
+
+rgba(255,255,255,.03) 1px,
+
+transparent 1px
+
+)
+
+40px 40px/80px 80px,
+
+
+
+
+linear-gradient(
+
+135deg,
+
+#090916,
+
+#171730
+
+);
+
+}
+
+
+
+
+    .container {
+        position: relative;
+        z-index: 1;
+    }
+
+   .title {
+    font-family: "Roboto Slab", serif;
+
+    font-size: 72px;
+    font-weight: 900;
+
+    background: linear-gradient(
+        180deg,
+        #9a8877,
+        #66584b
+    );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+
+    text-shadow:
+        0 2px 0 #3b322b,
+        0 4px 8px rgba(0,0,0,.4);
+
+    text-align: center;
+}
         
-        .logout-form{
-        margin:0;
-        padding:0;
-        }
-
-        .nav-button:hover {
-            background-color: rgba(255,255,255,0.15);
-        }
-
-        .navbar a{
-
-            color: white;
-
-            text-decoration: none;
-
-            font-size: 18px;
-
-            font-weight: bold;
-
-            padding: 10px 15px;
-
-            border-radius: 5px;
-
-            transition: 0.3s;
-        }
-
-       .nav-button{
-            background:none;
-            border:none;
-
-            color:white;
-
-            font:inherit;
-            font-weight:bold;
-
-            padding:10px 15px;
-
-            cursor:pointer;
-
-            border-radius:5px;
-        }
 
 
-        .navbar a:hover,.nav-button:hover {
+.player-header{
+    display:flex;
+    justify-content:center;
 
-            background-color: #1565C0;
+    margin-bottom:15px;
+}
 
-            color: #FFD700;
-        }
+.rank-badge{
+    padding:10px 24px;
+
+    border-radius:20px;
+
+    font-size:24px;
+    font-weight:bold;
+
+    color:#FFD700;
+
+    background:rgba(255,215,0,.1);
+
+    border:1px solid rgba(255,215,0,.3);
+
+    box-shadow:
+        0 0 15px rgba(255,215,0,.2);
+}
 
 
-        .navbar a:visited {
+    h1 {
+        font-family: "Roboto Slab", serif;
+        font-size: 64px;
+    }
 
-            color: white;
+    .stats-bar {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
 
-        }
+        padding: 40px 40px;
+
+        max-width: 900px;
+        margin: 0 auto;
+
+        background: rgba(0,0,0,0.3);
+        border-radius: 14px;
+
+        backdrop-filter: blur(8px);
+    }
+
+    .stat {
+        flex: 1;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        padding: 10px;
+
+        border-radius: 12px;
+
+        font-size: 18px;
+
+        color: white;
+
+        transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+
+    .stat span:last-child {
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .stat.rock {
+        background: linear-gradient(145deg, #4a3b2f, #2b211a);
+        box-shadow: inset 0 2px 0 rgba(255,255,255,0.08);
+    }
+
+    .stat.crystal {
+        background: linear-gradient(135deg, #6fe7ff, #b57bff);
+        box-shadow: 0 0 15px rgba(111,231,255,0.4);
+    }
+
+    .stat.asteroid {
+        background: radial-gradient(circle, #4b2f1a, #120d0a);
+        box-shadow: 0 0 18px rgba(255,120,0,0.25);
+    }
+
+    .stat:hover {
+    transform: translateY(-3px);
+    }
+
+    .button-area {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    background-color: #111111;
+    background: rgba(30, 30, 30, 0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 50px;
+    }
+
+    .row.full .game-button {
+        width: 100%;
+    }   
+
+    .row.split {
+        display: flex;
+        gap: 20px;
+    }
+
+    .row.split .game-button {
+        flex: 1;
+    }
+
+    #click-button {
+        background: linear-gradient(145deg, #5a4a3a, #3b2f25);
+        color: #f2e6d8;
+        width: 100%;  
+        height: 250px;
+        border: 2px solid #2a211a;
+        font-size: 40px;
+        box-shadow:
+        inset 0 3px 0 rgba(255,255,255,0.08),
+        0 6px 0 #1a1410;
+
+        text-shadow: 0 2px 2px rgba(0,0,0,0.6);
+
+        cursor: pointer;
+
+        transition: transform 0.1s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+
+    #click-button:hover {
+        transform: scale(1.05);
+    }
+
+    #click-button:active {
+        transform: scale(.95);
+    }
+
+    #prestige-button{
+        flex: 1 1 0; 
+        min-width: 0;  
+        height: 250px;
+        background: linear-gradient(135deg, #7df9ff, #b57bff);
+        font-size: 40px;
+        color: white;
+
+        border: 1px solid rgba(255,255,255,0.4);
+
+        box-shadow:
+            0 0 15px rgba(125, 249, 255, 0.6),
+            0 0 30px rgba(181, 123, 255, 0.4);
+
+        text-shadow: 0 0 10px rgba(255,255,255,0.6);
+        cursor: pointer;
+
+        transition: transform 0.1s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+
+    #prestige-button:hover {
+        transform: scale(1.05);
+    }
+
+    #prestige-button:active {
+        transform: scale(.95);
+    }
 
 
-        .upgrade{
+    #asteroid-button{
+        flex: 1 1 0; 
+        min-width: 0; 
+        height: 250px;
+            background: radial-gradient(circle at 30% 30%, #4b2f1a, #120d0a);
+        font-size: 40px;
+        color: #ffcc88;
 
-        padding:15px;
+        border: 1px solid rgba(255, 120, 0, 0.3);
 
-        margin:10px;
+        box-shadow:
+        0 0 25px rgba(255, 80, 0, 0.2),
+        inset 0 0 20px rgba(255, 100, 0, 0.1);
+
+        text-shadow: 0 0 8px rgba(255, 140, 0, 0.6);
+
+        animation: asteroidPulse 3s infinite ease-in-out;
+        cursor: pointer;
+
+        transition: transform 0.1s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 10;
+
+        background:#1E90FF;
+
+        display:flex;
+        align-items:center;
+
+        gap:10px;
+        animation: gradientMove 30s ease infinite;
+    }
+    
+    .logout-form{
+    margin:0;
+    padding:0;
+    }
+
+    .nav-button:hover {
+        background-color: rgba(255,255,255,0.15);
+    }
+
+    .navbar a{
+
+        color: white;
+
+        text-decoration: none;
+
+        font-size: 18px;
+
+        font-weight: bold;
+
+        padding: 10px 15px;
+
+        border-radius: 5px;
+
+        transition: 0.3s;
+    }
+
+    .nav-button{
+        background:none;
+        border:none;
+
+        color:white;
+
+        font:inherit;
+        font-weight:bold;
+
+        padding:10px 15px;
+
+        cursor:pointer;
+
+        border-radius:5px;
+    }
+
+
+    .navbar a:hover,.nav-button:hover {
+
+        background-color: #1565C0;
+
+        color: #FFD700;
+    }
+
+
+    .navbar a:visited {
+
+        color: white;
+
+    }
+
+
+    #crystal-upgrades,#asteroid-upgrades{
+    display:none;
+    }
+
+
+    .upgrade{
+
+        min-height:250px;
+
+        padding:20px;
 
         background:#252525;
 
-        border-radius:10px;
+        border-radius:15px;
 
-        box-shadow:0 0 10px black;
+        box-shadow:0 0 15px black;
+
+        display:flex;
+
+        flex-direction:column;
+
+        justify-content:space-between;
 
         transition:.2s;
+
+    }    
+
+
+    .upgrade[data-type="rock"] {
+    background: linear-gradient(145deg, #4a3b2f, #2b211a);
+    border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .upgrade[data-type="crystal"] {
+    background: linear-gradient(135deg, #6fe7ff, #b57bff);
+    box-shadow: 0 0 15px rgba(111,231,255,0.15);
+    }
+
+    .upgrade[data-type="asteroid"] {
+    background: radial-gradient(circle, #4b2f1a, #120d0a);
+    box-shadow: 0 0 18px rgba(255,120,0,0.15);
+    }
+
+
+    .upgrade:hover{
+
+    transform:translateY(-3px);
+
+    }
+
+
+    .upgrade button{
+
+        width:100%;
+
+        padding:10px;
+
+        border:none;
+
+        border-radius:10px;
+
+        margin-top:5px;
+
+    }
+
+    .upgrade h3{
+
+        margin-top:0;
+
+        text-align:center;
+
+    }
+
+
+    .upgrade p{
+
+        text-align:center;
+
+    }
+
+
+    .upgrade .level{
+
+        font-size:20px;
+
+        font-weight:bold;
+
+    }
+
+
+
+    .catalogue-tabs{
+
+    display:flex;
+
+    gap:10px;
+
+    margin-bottom:20px;
+
+    }
+
+
+    .catalogue-panel{
+
+      max-width: 1100px;
+    margin: 30px auto;
+
+    background: rgba(20, 20, 20, 0.7);
+    backdrop-filter: blur(10px);
+
+    border-radius: 20px;
+
+    padding: 20px;
+
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+
+
+    .upgrade-catalogue{
+    
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+
+    gap: 20px;
+
+    padding: 10px;
+    justify-content: center;
+    }
+
+    .catalogue-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 10px;
+
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+
+    margin-bottom: 20px;
+}
+
+.catalogue-tabs button {
+    padding: 10px 20px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: rgba(255,255,255,0.05);
+
+    color: white;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.catalogue-tabs button.active {
+    background: #4da6ff;
+    box-shadow: 0 0 15px rgba(77,166,255,0.4);
+}
+
+
+
+    .catalogue-tabs button.active{
+
+
+        background:#4da6ff;
+
+        color:white;
+
+    }
+
+
+
+    #click-area {
+        position: relative;
+
+    }
+
+    .floating-text {
+        position: absolute;
+
+        font-size: 24px;
+        font-weight: bold;
+
+        color: azure;
+
+        pointer-events: none;
+
+        animation: floatUp 1s forwards;
+    }
+
+
+    @keyframes floatUp {
+
+        from {
+            opacity: 1;
+            transform: translateY(0px);
         }
 
-        .upgrade:hover{
-
-        transform:translateY(-3px);
-
+        to {
+            opacity: 0;
+            transform: translateY(-80px);
         }
 
-        #click-area {
-            position: relative;
+    }
+    @keyframes asteroidPulse {
+        0%, 100% {
+            transform: scale(1);
+            filter: brightness(1);
+        }
+        50% {
+            transform: scale(1.02);
+            filter: brightness(1.2);
+        }
+    }
 
+    @media (max-width: 900px) {
+        .button-row {
+            flex-direction: column;
+            max-width: 500px;
         }
 
-        .floating-text {
-            position: absolute;
-
-            font-size: 24px;
-            font-weight: bold;
-
-            color: gold;
-
-            pointer-events: none;
-
-            animation: floatUp 1s forwards;
+        .game-button {
+            width: 100%;
         }
+    }
 
+@keyframes stars{
 
-        @keyframes floatUp {
+from{
 
-            from {
-                opacity: 1;
-                transform: translateY(0px);
-            }
+background-position:
 
-            to {
-                opacity: 0;
-                transform: translateY(-80px);
-            }
+0 0;
 
-        }
+}
+
+to{
+
+background-position:
+
+1000px 500px;
+
+}
+
+}
