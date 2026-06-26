@@ -9,15 +9,8 @@ Home
 {% block content %}
 <h1 class="title">Rock Clicker</h1>
 
-{% if user.is_authenticated %}
-<div class="player-header">
-    <div class="rank-badge">
-<h2>Rank: {{ rank }}</h2>
-</div></div>
-{% endif %}
-
 <div class="stats-bar">
-<span id="score-text" class="stat rock"><p>Rocks: <span id="score">0</span></p></span>
+<span id="score-text" class="stat rock"><p><span id="score">0</span> Rocks</p></span>
 {% if profile.prestige_unlocked %}
 <p>Crystals💎:<span id="crystals" class="stat crystal">{{profile.crystals}}</span></p>
 {% endif %}
@@ -32,8 +25,8 @@ Home
 </div>
 
 <div class="row split">
-<button id="prestige-button"  {% if score < 10000 %}disabled{% endif %} >Prestige for <b>{{next_crystals}}</b>💎</button>
-<button id="asteroid-button">Ascend for {{ next_asteroids }} ☄️</button>
+<button id="prestige-button" class="{% if score >= 10000 %}prestige-active{% else %}locked-button{% endif %}">Prestige for <b>{{next_crystals}}</b>💎</button>
+<button id="asteroid-button" class="{% if profile.asteroid_unlocked or score >= 1000000 %}asteroid-active{% else %}locked-button{% endif %}">Ascend for {{ next_asteroids }} ☄️</button>
 </div>
 </div>
 
@@ -65,7 +58,7 @@ Home
 
             <p>
             Cost:
-            <span class="cost">
+            <span class="cost" data-currency="rock">
                 {{ item.cost }}
             </span>
             Rocks
@@ -95,10 +88,10 @@ Home
 
             <p>
             Cost:
-            <span class="cost">
+            <span class="cost" data-currency="crystal">
                 {{ item.cost }}
             </span>
-            💎
+            
             </p>
 
             <button class="buy-btn" >
@@ -125,10 +118,9 @@ Home
 
             <p>
             Cost:
-            <span class="cost">
+            <span class="cost" data-currency="asteroid">
                 {{ item.cost }}
             </span>
-            ☄️
             </p>
 
             <button class="buy-btn" >

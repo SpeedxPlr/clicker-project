@@ -4,60 +4,41 @@ function refreshUI(data) {
     console.log("Refreshing");
     console.log(data);
 
+    if (data.score !== undefined) {
+        document.getElementById("score").textContent = data.score;
+}
+
+
 
     if (data.score !== undefined) {
 
-        document.getElementById("score").textContent =
-            data.score;
+    
+    
 
-        const button =
-            document.getElementById(
-                "prestige-button"
-            );
+        const prestigeButton = document.getElementById("prestige-button");
 
-        if (button) {
-
-            if (data.score < 10000) {
-
-                button.textContent =
-                    `Need ${10000-data.score} more rocks`;
-
-            }
-
-            else {
-
-                button.innerHTML =
-                    `Prestige for <b>${data.next_crystals}</b>💎`;
-
-            }
-
-        }
-
-    }
-
-        const button = document.getElementById("prestige-button");
-
-        if(button){
+        if(prestigeButton){
 
             if(data.score < 10000){
+                prestigeButton.classList.remove("prestige-active");
+                prestigeButton.classList.add("locked-button");
+                prestigeButton.disabled = true;
 
-                button.disabled = true;
-
-                button.textContent =
+                prestigeButton.textContent =
                     `Need ${10000-data.score} more Rocks`;
 
             }
             else{
 
-                button.disabled = false;
+                            prestigeButton.classList.remove("locked-button");
+                prestigeButton.classList.add("prestige-active");
+                prestigeButton.disabled = false;
 
-                button.innerHTML =
+                prestigeButton.innerHTML =
                     `Prestige for <b>${data.next_crystals}</b>💎`;
 
             }
         }
-
-
 
     const crystalText = document.getElementById("crystals");
 
@@ -78,32 +59,39 @@ function refreshUI(data) {
 
     }
 
-
-
-
-    const asteroidButton = document.getElementById("asteroid-button");
-
-    if (asteroidButton) {
-
-        if (data.score !== undefined) {
-
-            if (data.score < 1000000) {
-
-                asteroidButton.textContent =
-                    `Need ${1000000 - data.score} more Rocks`;
-
-                asteroidButton.disabled = true;
-
-            } else {
-
-                asteroidButton.innerHTML =
-                    `Ascend for <b>${data.next_asteroids || 0}</b> ☄️`;
-
-                asteroidButton.disabled = false;
-            }
-        }
     }
 
+
+        const asteroidButton = document.getElementById("asteroid-button");
+
+        if (asteroidButton) {
+
+            if (data.score !== undefined) {
+
+                if (data.score < 1000000) {
+
+                    asteroidButton.classList.remove("asteroid-active");
+                    asteroidButton.classList.add("locked-button");
+
+                    asteroidButton.disabled = true;
+
+                    asteroidButton.textContent =
+                        `Need ${1000000 - data.score} more Rocks`;
+
+                }
+                else {
+
+                    asteroidButton.classList.remove("locked-button");
+                    asteroidButton.classList.add("asteroid-active");
+
+                    asteroidButton.disabled = false;
+
+                    asteroidButton.innerHTML =
+                        `Ascend for <b>${data.next_asteroids}</b>☄️`;
+                }
+            }
+        }
+   
         if (data.upgrades) {
 
             data.upgrades.forEach(upgrade => {

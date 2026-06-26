@@ -52,6 +52,10 @@ def calculate_player_stats(profile):
         elif pu.upgrade.effect_type == Upgrade.GLOBAL_MULTIPLIER:
             stats["global_multiplier"] *= (1 + pu.upgrade.effect_value) ** pu.level
         
+        elif pu.upgrade.effect_type == Upgrade.AUTOCLICK_MULTIPLIER:
+            stats["autoclick_multiplier"] += value
+
+
         elif pu.upgrade.effect_type == Upgrade.CRYSTAL_ADDITIVE:
             stats["crystal_additive"] += value
 

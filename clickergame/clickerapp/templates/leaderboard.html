@@ -4,9 +4,13 @@
 {% block content %}
 
 
-<h1>Leaderboard</h1>
+<h1 class="title">
+🏆 Leaderboard
+</h1>
 <p></p>
-<table>
+<div class="leaderboard-panel">
+
+<table class="leaderboard">
 
 <tr>
 
@@ -19,17 +23,38 @@
 
 
 
-
-
 </tr>
 
 
 {% for player in players %}
 
-<tr>
+<tr class="
+{% if forloop.counter == 1 %}
+gold
+{% elif forloop.counter == 2 %}
+silver
+{% elif forloop.counter == 3 %}
+bronze
+{% endif %}
+{% if player.profile.user == request.user %}
+current-player
+{% endif %}
+">
 
 <td>
-{{ forloop.counter }}
+
+{% if forloop.counter == 1 %}
+🥇
+
+{% elif forloop.counter == 2 %}
+🥈
+
+{% elif forloop.counter == 3 %}
+🥉
+
+{% else %}
+#{{forloop.counter}}
+{% endif %}
 </td>
 
 <td>
@@ -38,17 +63,17 @@
 
 
 <td>
-{{ player.profile.score }}
+🪨 {{ player.profile.score }}
 </td>
 
 
 <td>
-{{ player.profile.crystals }}
+💎{{ player.profile.crystals }}
 </td>
 
 
 <td>
-{{ player.profile.asteroids }}
+☄️{{ player.profile.asteroids }}
 </td>
 
 
@@ -58,5 +83,5 @@
 {% endfor %}
 
 </table>
-
+</div>
 {% endblock %}

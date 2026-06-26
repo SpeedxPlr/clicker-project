@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="title">Profile</h1>
+
+<div class="profile-panel">
+
+    <div class="profile-card">
+        <h2>{{ user.username }}</h2>
+        <p>Rank: {{ rank }}</p>
+    </div>
+
+    <div class="stats-grid">
+
+        <div class="stat-box rock">
+            🪨 Rocks
+            <span>{{ profile.score }}</span>
+        </div>
+
+        <div class="stat-box crystal">
+            💎 Crystals
+            <span>{{ profile.crystals }}</span>
+        </div>
+
+        <div class="stat-box asteroid">
+            ☄️ Asteroids
+            <span>{{ profile.asteroids }}</span>
+        </div>
+
+    </div>
+
+    <div class="extra-stats">
+
+        <p>Clicks per second: {{ stats.auto_clicks_per_second }}</p>
+        <p>PPC: {{ ppc }}</p>
+        <p>Multiplier: {{ stats.autoclick_multiplier }}</p>
+
+    </div>
+
+</div>
+
+<div class="upgrade-summary">
+
+<h2>🪨 Rock Upgrades</h2>
+
+{% for upgrade in rock_upgrades %}
+<p>
+{{ upgrade.upgrade.name }}
+Lv. {{ upgrade.level }}
+</p>
+{% endfor %}
+
+
+<h2>💎 Crystal Upgrades</h2>
+
+{% for upgrade in crystal_upgrades %}
+<p>
+{{ upgrade.upgrade.name }}
+Lv. {{ upgrade.level }}
+</p>
+{% endfor %}
+
+
+<h2>☄️ Asteroid Upgrades</h2>
+
+{% for upgrade in asteroid_upgrades %}
+<p>
+{{ upgrade.upgrade.name }}
+Lv. {{ upgrade.level }}
+</p>
+{% endfor %}
+
+</div>
+
+
+{% endblock %}

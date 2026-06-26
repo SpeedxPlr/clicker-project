@@ -528,6 +528,63 @@ def build_upgrade_json(profile):
 
     ]
 
+from django.db.models import F
+
+
+@login_required
+
+def calculate_rank(profile):
+    return Profile.objects.filter(score__gt=profile.score).count() + 1
+
+def profile(request):
+  
+    profile = request.user.profile
+    for name in dir(profile):
+        if "upgrade" in name.lower():
+            print(name)
+    stats = calculate_player_stats(profile)
+
+    all_upgrades = profile.profileupgrade_set.select_related("upgrade")
+
+    rock_upgrades = all_upgrades.filter(
+        upgrade__currency=Upgrade.NORMAL
+    )
+
+    crystal_upgrades = all_upgrades.filter(
+        upgrade__currency=Upgrade.PRESTIGE
+    )
+
+    asteroid_upgrades = all_upgrades.filter(
+        upgrade__currency=Upgrade.ASTEROID
+    )
+
+    upgrades = profile.profileupgrade_set.select_related("upgrade")
+
+    stats = calculate_player_stats(profile)
+
+    ppc = calculate_ppc(profile)
+
+    rank = calculate_rank(profile) # however you're calculating it
+
+
+    context = {
+        "profile": profile,
+        "upgrades": upgrades,
+        "ppc": ppc,
+        "stats": stats,
+        "rank": rank,
+        "rock_upgrades":rock_upgrades,
+
+        "crystal_upgrades":crystal_upgrades,
+
+        "asteroid_upgrades":asteroid_upgrades,
+
+    }
+    
+
+    return render(request, "profile.html", context)
+
+
 @login_required
 def asteroid_reset(request):
 
