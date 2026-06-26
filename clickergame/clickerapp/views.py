@@ -10,6 +10,40 @@ from django.dispatch import receiver
 from .services import get_upgrade_data, calculate_ppc, calculate_crystals, collect_offline, calculate_asteroids, serialize_upgrades
 from .models import Upgrade
 import traceback
+
+
+def register_view(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+
+            # Optional: automatically log user in
+            login(request, user)
+
+            return redirect("home")
+        else:
+            print(form.errors)  # important for debugging
+    else:
+        form = RegisterForm()
+
+    return render(request, "registration/register.html", {
+        "form": form
+    })
+
+from django.contrib.auth import logout
+
+from .models import Profile
+from django.http import JsonResponse
+from .services import calculate_player_stats
+from django.shortcuts import get_object_or_404
+
+from .models import (
+    Profile,
+    Upgrade,
+    ProfileUpgrade,
+)
+
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
     if created:
@@ -101,76 +135,26 @@ def signup(request):
 
     return render(request, "signup.html", {"form": form})
 
-
-
-
-
-def register_view(request):
-    if request.method == "POST":
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-
-            # Optional: automatically log user in
-            login(request, user)
-
-            return redirect("home")
-        else:
-            print(form.errors)  # important for debugging
-    else:
-        form = RegisterForm()
-
-    return render(request, "registration/register.html", {
-        "form": form
-    })
-
-from django.contrib.auth import logout
-
 def logout_view(request):
     logout(request)
     return redirect("login")
 
-from .models import Profile
-from django.http import JsonResponse
-from .services import calculate_player_stats
-from django.shortcuts import get_object_or_404
-
-from .models import (
-    Profile,
-    Upgrade,
-    ProfileUpgrade,
-)
-
 def add_point(request):
-    profile, _ = Profile.objects.get_or_create(user=request.user)
-
-    stats = calculate_player_stats(profile)
+    profile = Profile.objects.get(user=request.user)
 
     reward = calculate_ppc(profile)
 
-    profile.score += reward
-    profile.save()
+    Profile.objects.filter(id=profile.id).update(
+        score=F("score") + reward
+    )
+
+    profile.refresh_from_db()
 
     return JsonResponse({
-    'score': profile.score,
-
-    'reward': reward,
-
-    'ppc': calculate_ppc(profile),
-
-    'crystals': profile.crystals,
-
-    'next_crystals': calculate_crystals(profile),
-
-    'upgrades': build_upgrade_json(profile),
-
-    "score": profile.score,
-
-    "asteroids": profile.asteroids,
-
-    "next_asteroids":calculate_asteroids(profile),
-})
-
+        "score": profile.score,
+        "reward": reward,
+        "ppc": reward,
+    })
 
 def user_score(user):
     profile, created = Profile.objects.get_or_create(user=user)
@@ -184,6 +168,14 @@ def get_score(request):
         "score": user_score(request.user)
     })
 
+
+from django.http import JsonResponse
+
+def upgrades(request):
+    profile = request.user.profile
+    return JsonResponse({
+        "upgrades": serialize_upgrades(profile)
+    })
 
 def get_cost(self, current_level):
     if not self.is_repeatable:
@@ -284,67 +276,37 @@ def buy_max(request, upgrade_id):
 
     profile = request.user.profile
 
+    upgrade = get_object_or_404(Upgrade,id=upgrade_id)
 
-    upgrade = get_object_or_404(
-
-        Upgrade,
-
-        id=upgrade_id
-
-    )
-
-
-    pu,_ = ProfileUpgrade.objects.get_or_create(
-
-        profile=profile,
-
-        upgrade=upgrade
-
-    )
-
+    pu,_ = ProfileUpgrade.objects.get_or_create(profile=profile,upgrade=upgrade)
 
     bought = 0
 
-
     while True:
 
-
         cost = upgrade.get_cost(
-
             pu.level
-
         )
-
 
         money = (
-
             profile.score
-
             if upgrade.currency==Upgrade.NORMAL
-
             else profile.crystals
-
         )
 
-
         if money < cost:
-
             break
-
 
         if upgrade.currency==Upgrade.NORMAL:
 
             profile.score -= cost
 
         else:
-
             profile.crystals -= cost
-
 
         pu.level += 1
 
         bought += 1
-
 
         if not upgrade.is_repeatable:
 
@@ -430,7 +392,7 @@ def auto_click(request):
         )
 
         profile.score += int(gained)
-        profile.save()
+        Profile.objects.filter(id=profile.id).update(score=F("score") + gained)
 
         return JsonResponse({
             "success": True,

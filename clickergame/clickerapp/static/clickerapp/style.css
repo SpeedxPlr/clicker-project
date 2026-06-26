@@ -2,7 +2,10 @@
 
 body {
 
-font-family: Monsterrat, sans-serif;
+font-family: "Montserrat", sans-serif,
+                 "Apple Color Emoji",
+                 "Segoe UI Emoji",
+                 "Noto Color Emoji";
 color: azure;
 background-color: #2a211a;
 
@@ -188,6 +191,7 @@ animation:stars 120s linear infinite;
 }
 
 .cost {
+
     font-weight: bold;
     font-size: 18px;
     letter-spacing: 0.5px;
@@ -214,14 +218,21 @@ animation:stars 120s linear infinite;
 
 .cost[data-currency="crystal"]::after {
     content: "💎";
+
 }
 
 .cost[data-currency="asteroid"]::after {
     content: "☄️";
+
 }
 
 .cost::after {
     margin-left: 6px;
+    font-family: "Apple Color Emoji",
+                 "Segoe UI Emoji",
+                 "Noto Color Emoji",
+                 sans-serif;
+
 }
 
 .container {

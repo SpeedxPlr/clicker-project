@@ -54,6 +54,14 @@ rock-theme
     </div>
 
 
-  <script src="{% static 'clickerapp/script.js' %}?v=12"></script>
+  <script src="{% static 'clickerapp/script.js' %}?v=12">
+fetch("/upgrades/")
+  .then(res => res.json())
+  .then(data => {
+      renderUpgrades(data.upgrades);
+  });
+</script>
+
+  
 </body>
 </html>
